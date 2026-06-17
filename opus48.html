@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Opus 4.8 — 判断する知性へ</title>
+<meta name="description" content="Claude Opus 4.8 — 本格的なコーディングとAIエージェントのために設計された、100万トークンのコンテキストを備えるAnthropicのハイブリッドOpus推論モデル。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=Newsreader:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --paper:#F4F1E9; --paper-2:#ECE7DC; --panel:#FBFAF5;
+  --ink:#1A1916; --ink-2:#39362F; --ink-3:#736E62; --ink-4:#9A9382;
+  --clay:#B6512C; --clay-2:#CE6B43; --clay-soft:#E9D9CC; --gold:#B98B3E;
+  --line:rgba(26,25,22,.13); --line-2:rgba(26,25,22,.07);
+  --serif:"Fraunces","Newsreader",Georgia,"Times New Roman","Hiragino Mincho ProN","Yu Mincho",serif;
+  --sans:"Inter",system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",sans-serif;
+  --maxw:1200px; --ease:cubic-bezier(.22,.61,.36,1);
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--sans);
+  font-size:17px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility; overflow-x:hidden;
+  font-feature-settings:"kern" 1;
+}
+body::before{
+  content:""; position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.4;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply;
+}
+::selection{background:var(--clay);color:#fff}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+h1,h2,h3{font-family:var(--serif);font-weight:400;letter-spacing:-.015em;line-height:1.04}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,5vw,56px);position:relative;z-index:2}
+.eyebrow{font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:500;color:var(--clay);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--clay);display:inline-block;opacity:.6}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;transition:background .4s var(--ease),border-color .4s var(--ease),backdrop-filter .4s}
+nav .bar{max-width:var(--maxw);margin:0 auto;padding:18px clamp(20px,5vw,56px);display:flex;align-items:center;justify-content:space-between}
+nav.scrolled{background:rgba(244,241,233,.82);backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:11px;font-family:var(--serif);font-size:19px;letter-spacing:-.01em}
+.brand .spark{width:20px;height:20px;color:var(--clay)}
+.navlinks{display:flex;gap:34px;align-items:center}
+.navlinks a{font-size:14.5px;color:var(--ink-2);position:relative;padding:4px 0;transition:color .25s}
+.navlinks a::after{content:"";position:absolute;left:0;bottom:-2px;height:1px;width:0;background:var(--clay);transition:width .3s var(--ease)}
+.navlinks a:hover,.navlinks a.active{color:var(--ink)}
+.navlinks a:hover::after,.navlinks a.active::after{width:100%}
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:500;padding:11px 20px;border-radius:999px;transition:transform .25s var(--ease),background .25s,box-shadow .25s,color .25s;font-family:var(--sans);cursor:pointer;border:1px solid transparent}
+.btn-primary{background:var(--ink);color:var(--paper)}
+.btn-primary:hover{background:var(--clay);transform:translateY(-2px);box-shadow:0 10px 26px -10px rgba(182,81,44,.6)}
+.btn-ghost{border-color:var(--line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--ink);transform:translateY(-2px)}
+.btn .arr{transition:transform .3s var(--ease)}
+.btn:hover .arr{transform:translateX(4px)}
+.nav-cta{display:flex;gap:12px;align-items:center}
+
+/* HERO */
+.hero{position:relative;padding:172px 0 96px;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(46px,7vw,92px);font-weight:400;margin:26px 0 0;letter-spacing:-.03em}
+.hero h1 em{font-style:italic;color:var(--clay);font-weight:300}
+.hero .lede{font-size:clamp(17px,1.4vw,20px);color:var(--ink-2);max-width:30em;margin-top:28px;line-height:1.6}
+.hero .actions{display:flex;gap:14px;margin-top:38px;flex-wrap:wrap}
+.hero .meta{margin-top:40px;display:flex;gap:30px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-3)}
+.hero .meta b{color:var(--ink);font-weight:600}
+.visual{position:relative;aspect-ratio:1/1;width:100%}
+#orbit{width:100%;height:100%;display:block}
+.visual .vlabel{position:absolute;bottom:6%;left:50%;transform:translateX(-50%);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-4);white-space:nowrap}
+
+/* STATEMENT */
+.statement{padding:96px 0;border-top:1px solid var(--line)}
+.statement p{font-family:var(--serif);font-size:clamp(26px,3.4vw,44px);line-height:1.34;font-weight:300;letter-spacing:-.018em;max-width:18em}
+.statement p .hl{color:var(--clay);font-style:italic}
+.statement .sig{margin-top:34px;font-size:14px;color:var(--ink-3);display:flex;align-items:center;gap:12px}
+.statement .sig::before{content:"";width:34px;height:1px;background:var(--ink-3)}
+
+/* SECTION HEAD */
+.shead{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;margin-bottom:54px;flex-wrap:wrap}
+.shead h2{font-size:clamp(30px,4vw,50px);font-weight:400;letter-spacing:-.025em;max-width:13em}
+.shead .stxt{max-width:26em;color:var(--ink-3);font-size:15.5px}
+section.block{padding:96px 0;border-top:1px solid var(--line)}
+
+/* CAPABILITIES */
+.feature{display:grid;grid-template-columns:64px 1fr;gap:28px;padding:34px 0;border-top:1px solid var(--line-2);align-items:start;transition:padding-left .4s var(--ease)}
+.feature:first-of-type{border-top:none}
+.feature:hover{padding-left:12px}
+.feature .ico{width:46px;height:46px;color:var(--clay);stroke-width:1.4}
+.feature .ftxt h3{font-size:23px;font-family:var(--serif);font-weight:500;letter-spacing:-.01em;display:flex;align-items:baseline;gap:14px}
+.feature .ftxt h3 .idx{font-family:var(--sans);font-size:12px;color:var(--ink-4);letter-spacing:.1em;font-weight:600}
+.feature .ftxt p{color:var(--ink-2);margin-top:10px;max-width:46em;font-size:15.5px}
+.feature .ftag{display:inline-block;margin-top:14px;font-size:12.5px;color:var(--clay);letter-spacing:.04em;border:1px solid var(--clay-soft);background:rgba(182,81,44,.05);padding:4px 11px;border-radius:999px}
+
+/* BENCHMARKS */
+.bench{display:grid;grid-template-columns:1fr 1fr;gap:54px 64px}
+.bm{}
+.bm .bm-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px}
+.bm .bm-name{font-family:var(--serif);font-size:20px;font-weight:500}
+.bm .bm-sub{font-size:12.5px;color:var(--ink-4);letter-spacing:.02em}
+.row{margin:14px 0}
+.row .rlab{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-3);margin-bottom:7px}
+.row .rlab b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.track{height:11px;border-radius:999px;background:var(--paper-2);overflow:hidden;position:relative}
+.fill{height:100%;width:0;border-radius:999px;transition:width 1.5s var(--ease)}
+.fill.now{background:linear-gradient(90deg,var(--clay),var(--clay-2))}
+.fill.prev{background:var(--ink-4);opacity:.5}
+.bench-note{margin-top:54px;font-size:13.5px;color:var(--ink-3);max-width:50em;border-left:2px solid var(--clay);padding-left:16px;line-height:1.6}
+
+/* STATS STRIP */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.stat{background:var(--paper);padding:38px 30px;transition:background .3s}
+.stat:hover{background:var(--panel)}
+.stat .sv{font-family:var(--serif);font-size:clamp(38px,5vw,58px);font-weight:400;letter-spacing:-.03em;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.stat .sv .u{font-size:.42em;color:var(--clay);margin-left:3px;letter-spacing:0}
+.stat .sl{margin-top:14px;font-size:13.5px;color:var(--ink-3);line-height:1.45}
+
+/* DARK FEATURES */
+.dark{background:var(--ink);color:var(--paper);border-top:none}
+.dark .eyebrow{color:var(--clay-2)}
+.dark .eyebrow::before{background:var(--clay-2)}
+.dark .shead .stxt{color:rgba(244,241,233,.6)}
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(244,241,233,.12);border:1px solid rgba(244,241,233,.12);border-radius:18px;overflow:hidden}
+.fcell{background:var(--ink);padding:42px 34px;transition:background .35s var(--ease);position:relative}
+.fcell:hover{background:#221F1A}
+.fcell .fno{font-size:12.5px;letter-spacing:.2em;color:var(--clay-2);font-weight:600}
+.fcell .fic{width:34px;height:34px;margin:22px 0 18px;color:var(--paper);stroke-width:1.3}
+.fcell h3{font-size:21px;color:var(--paper);font-weight:500}
+.fcell p{margin-top:12px;color:rgba(244,241,233,.66);font-size:14.5px}
+.fcell .metric{margin-top:20px;font-family:var(--serif);font-size:30px;color:var(--clay-2);font-weight:400}
+
+/* QUOTES */
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:36px}
+.quote{padding-top:30px;border-top:1px solid var(--line)}
+.quote .qm{font-family:var(--serif);font-size:52px;line-height:.4;color:var(--clay);height:24px;display:block}
+.quote p{font-size:16.5px;color:var(--ink-2);line-height:1.6;margin:8px 0 22px}
+.quote .qa{font-size:13.5px}
+.quote .qa b{display:block;color:var(--ink);font-weight:600}
+.quote .qa span{color:var(--ink-4)}
+
+/* SPECS */
+.specs{display:grid;grid-template-columns:1.1fr 1fr;gap:60px;align-items:start}
+.spec-row{display:flex;justify-content:space-between;gap:24px;padding:20px 0;border-top:1px solid var(--line-2);font-size:15.5px}
+.spec-row:first-child{border-top:none}
+.spec-row .k{color:var(--ink-3)}
+.spec-row .v{color:var(--ink);font-weight:500;text-align:right}
+.avail{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px}
+.avail h3{font-family:var(--serif);font-size:21px;font-weight:500;margin-bottom:20px}
+.avail ul{list-style:none;display:flex;flex-direction:column;gap:14px}
+.avail li{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--ink-2)}
+.avail li .dot{width:7px;height:7px;border-radius:50%;background:var(--clay);flex:none}
+
+/* CTA */
+.cta{text-align:center;padding:120px 0}
+.cta h2{font-size:clamp(36px,6vw,76px);font-weight:300;letter-spacing:-.03em}
+.cta h2 em{font-style:italic;color:var(--clay)}
+.cta p{color:var(--ink-2);max-width:34em;margin:24px auto 0;font-size:17px}
+.cta .actions{display:flex;gap:14px;justify-content:center;margin-top:40px;flex-wrap:wrap}
+
+/* FOOTER */
+footer{border-top:1px solid var(--line);padding:54px 0 60px}
+.fcols{display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap}
+.fcols .brand{font-size:18px}
+footer .disc{margin-top:34px;font-size:12px;color:var(--ink-4);max-width:60em;line-height:1.6}
+footer .copy{margin-top:18px;font-size:12.5px;color:var(--ink-3)}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.reveal[data-d="1"]{transition-delay:.08s}.reveal[data-d="2"]{transition-delay:.16s}.reveal[data-d="3"]{transition-delay:.24s}.reveal[data-d="4"]{transition-delay:.32s}
+
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr;gap:20px}
+  .visual{max-width:420px;margin:8px auto 0;order:-1}
+  .bench{grid-template-columns:1fr;gap:42px}
+  .stats{grid-template-columns:1fr 1fr}
+  .fgrid{grid-template-columns:1fr}
+  .quotes{grid-template-columns:1fr;gap:0}
+  .quote{padding:26px 0}
+  .specs{grid-template-columns:1fr;gap:34px}
+  .navlinks{display:none}
+}
+@media(max-width:520px){
+  .stats{grid-template-columns:1fr}
+  .feature{grid-template-columns:1fr;gap:14px}
+  .feature .ico{width:38px;height:38px}
+  .nav-cta .btn-ghost{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important}
+  .reveal{opacity:1;transform:none;transition:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<nav id="nav">
+  <div class="bar">
+    <a href="#top" class="brand">
+      <svg class="spark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l1.9 6.2 6.2 1.9-6.2 1.9L12 22.5l-1.9-6.2L3.9 12l6.2-1.9z"/></svg>
+      Claude&nbsp;Opus&nbsp;<span style="color:var(--clay)">4.8</span>
+    </a>
+    <div class="navlinks">
+      <a href="#intro">概要</a>
+      <a href="#caps">能力</a>
+      <a href="#bench">ベンチマーク</a>
+      <a href="#features">新機能</a>
+      <a href="#specs">仕様</a>
+    </div>
+    <div class="nav-cta">
+      <a class="btn btn-ghost" href="https://platform.claude.com/" target="_blank" rel="noopener">API</a>
+      <a class="btn btn-primary" href="https://claude.ai/" target="_blank" rel="noopener">Claudeを試す <span class="arr">→</span></a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow reveal">Anthropic · 2026年5月28日 一般提供開始</span>
+      <h1 class="reveal" data-d="1">判断する、<br><em>もっとも賢いOpus。</em></h1>
+      <p class="lede reveal" data-d="2">Claude Opus 4.8 は、本格的なコーディングと長時間稼働するAIエージェントのために設計されたハイブリッド推論モデル。100万トークンのコンテキストと、これまでで最も鋭い判断力・誠実さを備えています。</p>
+      <div class="actions reveal" data-d="3">
+        <a class="btn btn-primary" href="https://claude.ai/" target="_blank" rel="noopener">いますぐ試す <span class="arr">→</span></a>
+        <a class="btn btn-ghost" href="#bench">ベンチマークを見る</a>
+      </div>
+      <div class="meta reveal" data-d="4">
+        <span><b>1M</b> コンテキスト</span>
+        <span><b>69.2%</b> SWE-Bench Pro</span>
+        <span><b>×4</b> 高い誠実性</span>
+        <span><b>Opus 4.7と同一</b> 価格</span>
+      </div>
+    </div>
+    <div class="visual reveal" data-d="2">
+      <canvas id="orbit"></canvas>
+      <span class="vlabel">Dynamic Workflows · 並列サブエージェント</span>
+    </div>
+  </div>
+</header>
+
+<section class="statement" id="intro">
+  <div class="wrap">
+    <p class="reveal">賢さだけでは、仕事は任せられない。<br>Opus 4.8 は、<span class="hl">自らの進捗に正直であること</span>を学んだ。誤りを自ら捉え、無理な計画には異議を唱え、報告の前に自分の仕事を検証する。</p>
+    <div class="sig reveal" data-d="1">Anthropic がこれまでに一般提供した、最も高性能なモデル</div>
+  </div>
+</section>
+
+<section class="block" id="caps">
+  <div class="wrap">
+    <div class="shead">
+      <h2 class="reveal">手放せるほどの、<br>信頼性。</h2>
+      <p class="stxt reveal" data-d="1">機能・移行・バグ修正をひとつ手渡せば、Opus 4.8 はあなたが次の仕事に集中する間、最後までやり遂げる。長文脈・コーディング・エージェント業務での確かさが、Opus 4.7 から着実に前進しました。</p>
+    </div>
+
+    <div class="feature reveal">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="ftxt"><h3><span class="idx">01</span> 本格的なコーディング</h3>
+      <p>大規模コードベースのリファクタリング、複数サービスにまたがる本番障害のデバッグ、複雑なソフトウェア移行の計画まで。SWE-Bench Pro で 69.2% を記録し、Opus 4.7 を上回ります。</p>
+      <span class="ftag">未報告のコードバグが、従来比 1/4 に</span></div>
+    </div>
+
+    <div class="feature reveal">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke-linecap="round"/></svg>
+      <div class="ftxt"><h3><span class="idx">02</span> 長時間稼働するエージェント</h3>
+      <p>ツールを使い、出力を検証しながら自律的に作業を継続。前世代より長く、独立して働き続けられます。翻訳・ディープリサーチ・スライド作成・分析といったエージェント製品で力を発揮します。</p></div>
+    </div>
+
+    <div class="feature reveal">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19V5M4 19h16M8 16l4-6 3 3 5-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="ftxt"><h3><span class="idx">03</span> 企業ワークフローと分析</h3>
+      <p>雑然とした入力から、洗練されたエンタープライズ向け成果物を。財務分析・サイバーセキュリティ・長大なプロジェクト履歴の横断推論で、入出力の問題点を自ら積極的に指摘します。</p></div>
+    </div>
+
+    <div class="feature reveal">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M8 14h4" stroke-linecap="round"/></svg>
+      <div class="ftxt"><h3><span class="idx">04</span> マルチモーダル＆長文脈</h3>
+      <p>PDF・スプレッドシート・図表・ドキュメントをまたいで推論。100万トークンのコンテキストで、長い技術・法務・財務文書のレビューも一度に扱えます。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="bench">
+  <div class="wrap">
+    <div class="shead">
+      <h2 class="reveal">数字が示す、<br>世代の差。</h2>
+      <p class="stxt reveal" data-d="1">Opus 4.7（淡色）と Opus 4.8（テラコッタ）の比較。化粧直しではなく、推論・コーディング・誠実性の実質的な前進です。</p>
+    </div>
+    <div class="bench">
+      <div class="bm reveal">
+        <div class="bm-top"><span class="bm-name">SWE-Bench Pro</span><span class="bm-sub">エージェント型コーディング</span></div>
+        <div class="row"><div class="rlab"><span>Opus 4.8</span><b>69.2%</b></div><div class="track"><div class="fill now" data-w="69.2"></div></div></div>
+        <div class="row"><div class="rlab"><span>Opus 4.7</span><b>64.3%</b></div><div class="track"><div class="fill prev" data-w="64.3"></div></div></div>
+      </div>
+      <div class="bm reveal" data-d="1">
+        <div class="bm-top"><span class="bm-name">USAMO 2026</span><span class="bm-sub">証明ベースの数学・学習後に実施</span></div>
+        <div class="row"><div class="rlab"><span>Opus 4.8</span><b>96.7%</b></div><div class="track"><div class="fill now" data-w="96.7"></div></div></div>
+        <div class="row"><div class="rlab"><span>Opus 4.7</span><b>69.3%</b></div><div class="track"><div class="fill prev" data-w="69.3"></div></div></div>
+      </div>
+      <div class="bm reveal" data-d="2">
+        <div class="bm-top"><span class="bm-name">Humanity's Last Exam</span><span class="bm-sub">大学院レベルの難問</span></div>
+        <div class="row"><div class="rlab"><span>ツールあり</span><b>57.9%</b></div><div class="track"><div class="fill now" data-w="57.9"></div></div></div>
+        <div class="row"><div class="rlab"><span>ツールなし</span><b>49.8%</b></div><div class="track"><div class="fill prev" data-w="49.8"></div></div></div>
+      </div>
+      <div class="bm reveal" data-d="3">
+        <div class="bm-top"><span class="bm-name">誠実性（Honesty）</span><span class="bm-sub">未報告のコードバグ</span></div>
+        <div class="row"><div class="rlab"><span>Opus 4.8 — 削減率</span><b>−75%</b></div><div class="track"><div class="fill now" data-w="75"></div></div></div>
+        <div class="row"><div class="rlab"><span>Opus 4.7 — 基準</span><b>基準</b></div><div class="track"><div class="fill prev" data-w="100"></div></div></div>
+      </div>
+    </div>
+    <p class="bench-note reveal">数値は Anthropic および公開レビューに基づく代表値です。USAMO はモデルの学習データ・カットオフ後に実施された問題で、汚染のない結果として報告されています。万能ではなく、一部のフロントエンド/可視化タスクでは依然として弱点も残ります。</p>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat reveal"><div class="sv" data-count="1" data-suffix="M">0<span class="u">トークン</span></div><div class="sl">コンテキストウィンドウ。長大な履歴も一度に。</div></div>
+      <div class="stat reveal" data-d="1"><div class="sv" data-count="2.5" data-dec="1" data-suffix="×">0</div><div class="sl">Fast モードによる高速化（リサーチプレビュー）。</div></div>
+      <div class="stat reveal" data-d="2"><div class="sv" data-count="3" data-suffix="×">0</div><div class="sl">Fast モードは従来比でより低コストに。</div></div>
+      <div class="stat reveal" data-d="3"><div class="sv" data-count="96.7" data-dec="1" data-suffix="%">0</div><div class="sl">USAMO 2026 のスコア（Opus 4.7 は69.3%）。</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="block dark" id="features">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow reveal">同日ローンチ</span>
+      <h2 class="reveal" data-d="1" style="color:var(--paper);flex-basis:100%">速く、深く、思いのままに。</h2>
+      <p class="stxt reveal" data-d="2">Opus 4.8 と同時に、働き方そのものを変える3つの機能が登場しました。</p>
+    </div>
+    <div class="fgrid">
+      <div class="fcell reveal">
+        <div class="fno">01 / FAST MODE</div>
+        <svg class="fic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" stroke-linejoin="round"/></svg>
+        <h3>Fast モード</h3>
+        <p>同じモデルを、約2.5倍の速度で。リサーチプレビューとして、従来比3倍の低コストで提供されます。</p>
+        <div class="metric">2.5× 高速</div>
+      </div>
+      <div class="fcell reveal" data-d="1">
+        <div class="fno">02 / CLAUDE CODE</div>
+        <svg class="fic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="12" cy="18" r="2.4"/><path d="M6 8.4v3a2 2 0 002 2h8a2 2 0 002-2v-3M12 13.4v2.2" stroke-linecap="round"/></svg>
+        <h3>ダイナミック・ワークフロー</h3>
+        <p>1つのセッション内で数百のサブエージェントを並列実行。報告の前に、自らの作業を検証します。</p>
+        <div class="metric">数百の並列実行</div>
+      </div>
+      <div class="fcell reveal" data-d="2">
+        <div class="fno">03 / CLAUDE.AI</div>
+        <svg class="fic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>エフォート・コントロール</h3>
+        <p>応答にどれだけ思考を費やすかを、あなたが選べる。速さと深さのバランスを、タスクごとに最適化。</p>
+        <div class="metric">思考量を調整</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap">
+    <div class="shead">
+      <h2 class="reveal">使った人の、<br>言葉。</h2>
+      <p class="stxt reveal" data-d="1">早期テスターやパートナー企業が語る、Opus 4.8 との協働。</p>
+    </div>
+    <div class="quotes">
+      <blockquote class="quote reveal">
+        <span class="qm">&ldquo;</span>
+        <p>Opus 4.8 は明らかに判断力が高い。Claude Code では的確な問いを立て、自らの誤りを捉え、計画が甘ければ押し返す。複雑な多サービス探索でも、大きな変更の前にしっかり確信を積み上げてくれる。</p>
+        <div class="qa"><b>Tom Pritchard</b><span>Staff Engineer</span></div>
+      </blockquote>
+      <blockquote class="quote reveal" data-d="1">
+        <span class="qm">&ldquo;</span>
+        <p>Opus 4.7 からの大きな質の向上を感じる。速く、協働しやすく、長いセッションでも文脈とスタイルの方向性をうまく保ち続ける。声・センス・技術的実行が同時に問われる仕事で、私が信頼し続けたモデルだ。</p>
+        <div class="qa"><b>Katie Parrott</b><span>Staff Writer</span></div>
+      </blockquote>
+      <blockquote class="quote reveal" data-d="2">
+        <span class="qm">&ldquo;</span>
+        <p>長時間評価において、分析の質は一貫して従来のOpusより高かった。より速く、情報密度の高い出力を返す。最大の違いは、入力と出力の問題点を自ら先回りして指摘してくれる点だ。</p>
+        <div class="qa"><b>Michael Ran</b><span>早期テスター</span></div>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="specs">
+  <div class="wrap">
+    <div class="shead">
+      <h2 class="reveal">仕様と提供。</h2>
+      <p class="stxt reveal" data-d="1">claude.ai、Claude API、そして主要クラウドで本日より利用可能。価格は Opus 4.7 から据え置きです。</p>
+    </div>
+    <div class="specs">
+      <div class="reveal">
+        <div class="spec-row"><span class="k">モデル</span><span class="v">Claude Opus 4.8</span></div>
+        <div class="spec-row"><span class="k">系譜</span><span class="v">Opus 4.7 を基盤に構築</span></div>
+        <div class="spec-row"><span class="k">アーキテクチャ</span><span class="v">ハイブリッド推論モデル</span></div>
+        <div class="spec-row"><span class="k">コンテキスト</span><span class="v">1,000,000 トークン</span></div>
+        <div class="spec-row"><span class="k">入力 / 出力</span><span class="v">テキスト・画像 → テキスト</span></div>
+        <div class="spec-row"><span class="k">最小キャッシュ長</span><span class="v">1,024 トークン</span></div>
+        <div class="spec-row"><span class="k">一般提供開始</span><span class="v">2026年5月28日</span></div>
+        <div class="spec-row"><span class="k">価格</span><span class="v">Opus 4.7 と同一</span></div>
+      </div>
+      <div class="avail reveal" data-d="1">
+        <h3>提供プラットフォーム</h3>
+        <ul>
+          <li><span class="dot"></span>claude.ai</li>
+          <li><span class="dot"></span>Claude API（Claude Platform）</li>
+          <li><span class="dot"></span>Amazon Bedrock</li>
+          <li><span class="dot"></span>Google Cloud Vertex AI</li>
+          <li><span class="dot"></span>Microsoft Foundry</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap">
+    <span class="eyebrow reveal" style="justify-content:center">はじめよう</span>
+    <h2 class="reveal" data-d="1">いちばん複雑な仕事を、<br><em>Opus 4.8 に。</em></h2>
+    <p class="reveal" data-d="2">複雑な推論、長時間のエージェント型コーディング、高い自律性が求められる仕事。迷ったら、まず最も高性能なOpusから。</p>
+    <div class="actions reveal" data-d="3">
+      <a class="btn btn-primary" href="https://claude.ai/" target="_blank" rel="noopener">Claudeを試す <span class="arr">→</span></a>
+      <a class="btn btn-ghost" href="https://platform.claude.com/" target="_blank" rel="noopener">APIを利用する</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fcols">
+      <a href="#top" class="brand"><svg class="spark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l1.9 6.2 6.2 1.9-6.2 1.9L12 22.5l-1.9-6.2L3.9 12l6.2-1.9z"/></svg> Claude Opus 4.8</a>
+      <div class="navlinks" style="display:flex;gap:28px">
+        <a href="#caps">能力</a><a href="#bench">ベンチマーク</a><a href="#features">新機能</a><a href="#specs">仕様</a>
+      </div>
+    </div>
+    <p class="disc">本ページは Claude Opus 4.8 を紹介する目的で制作されたデザイン・ショーケースです。Anthropic 公式サイトではなく、同社とは提携していません。記載のベンチマークや機能は、公開情報に基づく代表値・要約であり、最新かつ正確な情報は Anthropic 公式の発表をご確認ください。</p>
+    <p class="copy">Claude および Opus は Anthropic の製品・商標です。 © 2026 — Design showcase.</p>
+  </div>
+</footer>
+
+<script>
+const rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* nav scrolled */
+const nav = document.getElementById('nav');
+const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 24);
+onScroll(); addEventListener('scroll', onScroll, {passive:true});
+
+/* reveal + bars + counters */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const el = e.target;
+    el.classList.add('in');
+    el.querySelectorAll('.fill').forEach(f=>{ f.style.width = f.dataset.w + '%'; });
+    el.querySelectorAll('[data-count]').forEach(runCount);
+    io.unobserve(el);
+  });
+},{threshold:.18, rootMargin:'0px 0px -8% 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+function runCount(node){
+  const target = parseFloat(node.dataset.count);
+  const dec = parseInt(node.dataset.dec||'0',10);
+  const suffix = node.dataset.suffix||'';
+  const uHtml = node.querySelector('.u') ? node.querySelector('.u').outerHTML : '';
+  if(rm){ node.innerHTML = target.toFixed(dec) + suffix + uHtml; return; }
+  const dur = 1400; const t0 = performance.now();
+  const tick = (t)=>{
+    let p = Math.min(1,(t-t0)/dur);
+    p = 1 - Math.pow(1-p,3);
+    const val = (target*p).toFixed(dec);
+    node.innerHTML = val + suffix + uHtml;
+    if(p<1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* active nav link */
+const secs = [...document.querySelectorAll('section[id],header[id]')];
+const links = new Map([...document.querySelectorAll('.navlinks a[href^="#"]')].map(a=>[a.getAttribute('href').slice(1),a]));
+const nio = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      document.querySelectorAll('.navlinks a').forEach(a=>a.classList.remove('active'));
+      const l = links.get(e.target.id); if(l) l.classList.add('active');
+    }
+  });
+},{rootMargin:'-45% 0px -50% 0px'});
+secs.forEach(s=>nio.observe(s));
+
+/* hero orbit visual — meaningful: parallel subagents converging & verifying */
+const cv = document.getElementById('orbit');
+const ctx = cv.getContext('2d');
+let W,H,DPR,cx,cy, nodes=[], mouse={x:0,y:0,a:0};
+function size(){
+  DPR = Math.min(2, window.devicePixelRatio||1);
+  const r = cv.getBoundingClientRect();
+  W=r.width; H=r.height; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0);
+  cx=W/2; cy=H/2;
+}
+function build(){
+  nodes=[]; const rings=[{n:6,r:.20},{n:11,r:.33},{n:16,r:.46}];
+  const base=Math.min(W,H);
+  rings.forEach((ring,ri)=>{
+    for(let i=0;i<ring.n;i++){
+      const ang=(i/ring.n)*Math.PI*2 + ri*0.5;
+      nodes.push({ang, rad:ring.r*base, sp:(0.0010+ri*0.00035)*(ri%2?-1:1), sz:1.6+ (2-ri)*0.5, ph:Math.random()*Math.PI*2});
+    }
+  });
+}
+function resize(){ size(); build(); }
+addEventListener('resize', resize); resize();
+
+cv.addEventListener('pointermove', ev=>{
+  const r=cv.getBoundingClientRect();
+  mouse.x=(ev.clientX-r.left-cx)/cx; mouse.y=(ev.clientY-r.top-cy)/cy;
+});
+cv.addEventListener('pointerleave', ()=>{mouse.x=0;mouse.y=0;});
+
+const CLAY='182,81,44', INK='26,25,22';
+let tprev=0;
+function draw(t){
+  const dt = t-tprev; tprev=t;
+  ctx.clearRect(0,0,W,H);
+  mouse.a += ((mouse.x)*0.06 - mouse.a)*0.06;
+  const ox = mouse.x*10, oy = mouse.y*10;
+
+  // positions
+  const pts = nodes.map(nd=>{
+    if(!rm) nd.ang += nd.sp*dt;
+    const wob = Math.sin(t*0.0012 + nd.ph)*3;
+    return {x:cx+ox+Math.cos(nd.ang)*(nd.rad+wob), y:cy+oy+Math.sin(nd.ang)*(nd.rad+wob), sz:nd.sz};
+  });
+
+  // connections to center (subagents reporting back)
+  pts.forEach((p,i)=>{
+    const d = Math.hypot(p.x-cx-ox, p.y-cy-oy);
+    const pulse = 0.5+0.5*Math.sin(t*0.002 - d*0.02);
+    ctx.strokeStyle='rgba('+INK+','+(0.04+pulse*0.05)+')';
+    ctx.lineWidth=0.6; ctx.beginPath(); ctx.moveTo(cx+ox,cy+oy); ctx.lineTo(p.x,p.y); ctx.stroke();
+  });
+  // near-neighbour mesh
+  for(let i=0;i<pts.length;i++){
+    for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y; const d=Math.hypot(dx,dy);
+      if(d<70){ ctx.strokeStyle='rgba('+CLAY+','+(0.16*(1-d/70))+')'; ctx.lineWidth=0.6; ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y); ctx.stroke(); }
+    }
+  }
+  // nodes
+  pts.forEach((p,i)=>{
+    const tw = 0.6+0.4*Math.sin(t*0.003+i);
+    ctx.fillStyle = i%5===0 ? 'rgba('+CLAY+','+(0.85*tw)+')' : 'rgba('+INK+','+(0.5*tw)+')';
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.sz,0,Math.PI*2); ctx.fill();
+  });
+  // core
+  const cr = 16+Math.sin(t*0.002)*2;
+  const g = ctx.createRadialGradient(cx+ox,cy+oy,0,cx+ox,cy+oy,cr*2.6);
+  g.addColorStop(0,'rgba('+CLAY+',0.9)'); g.addColorStop(.5,'rgba('+CLAY+',0.18)'); g.addColorStop(1,'rgba('+CLAY+',0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx+ox,cy+oy,cr*2.6,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='rgba('+CLAY+',1)'; ctx.beginPath(); ctx.arc(cx+ox,cy+oy,4.5,0,Math.PI*2); ctx.fill();
+
+  if(!rm) requestAnimationFrame(draw);
+}
+if(rm){ draw(0); } else { requestAnimationFrame(draw); }
+</script>
+</body>
+</html>
