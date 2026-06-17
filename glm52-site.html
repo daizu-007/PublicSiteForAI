@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLM-5.2 — 長期タスクのために構築された旗艦モデル | Z.ai</title>
+<style>
+:root {
+	color-scheme: light dark;
+	--notion-bg: #ffffff;
+	--notion-bg-soft: #f9f9f8;
+	--notion-surface: #ffffff;
+	--notion-surface-hover: #f6f5f4;
+	--notion-text: #191918;
+	--notion-text-soft: rgba(0, 0, 0, 0.54);
+	--notion-text-faint: rgba(0, 0, 0, 0.3);
+	--notion-border: rgba(0, 0, 0, 0.1);
+	--notion-border-soft: rgba(0, 0, 0, 0.05);
+	--notion-shadow: 0px 0.7px 1.462px rgba(0, 0, 0, 0.015), 0px 3px 9px rgba(0, 0, 0, 0.03);
+	--notion-blue: #2783de;
+	--notion-orange: #d5803b;
+	--notion-red: #e56458;
+	--notion-blue-bg: #f3f9fd;
+	--notion-yellow-bg: #fcfaef;
+	--notion-orange-bg: #fcf7f4;
+	--notion-green-bg: #f6f9f7;
+	--notion-red-bg: #fdf6f6;
+	--notion-gray-bg: #f9f8f7;
+	--notion-radius: 8px;
+	--notion-page-width: 960px;
+	--notion-chart-1: #5e9fe8;
+	--notion-chart-2: #eac26b;
+	--notion-chart-3: #72bc8f;
+	--notion-chart-4: #bf8eda;
+	--notion-chart-5: #de9255;
+	--notion-chart-6: #df84a8;
+	--notion-chart-7: #4fb9c9;
+	--notion-chart-8: #e97366;
+	--accent: #0066ff;
+	--accent-soft: #3b82f6;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--notion-bg: #0a0a0a;
+		--notion-bg-soft: #141414;
+		--notion-surface: #181818;
+		--notion-surface-hover: #262626;
+		--notion-text: #f5f5f5;
+		--notion-text-soft: rgba(255, 255, 255, 0.55);
+		--notion-text-faint: rgba(255, 255, 255, 0.3);
+		--notion-border: rgba(255, 255, 255, 0.12);
+		--notion-border-soft: rgba(255, 255, 255, 0.06);
+		--notion-shadow: 0px 0.7px 2px rgba(0, 0, 0, 0.3), 0px 4px 12px rgba(0, 0, 0, 0.15);
+		--notion-blue: #4a9eff;
+		--notion-blue-bg: rgba(74, 158, 255, 0.12);
+		--notion-yellow-bg: rgba(234, 194, 107, 0.1);
+		--notion-orange-bg: rgba(222, 146, 85, 0.1);
+		--notion-green-bg: rgba(114, 188, 143, 0.1);
+		--notion-red-bg: rgba(233, 115, 102, 0.1);
+		--notion-gray-bg: rgba(255, 255, 255, 0.05);
+		--accent: #3b82f6;
+		--accent-soft: #60a5fa;
+	}
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+	margin: 0;
+	background: var(--notion-bg);
+	color: var(--notion-text);
+	font-family: -apple-system, BlinkMacSystemFont, "Noto Sans JP", "Segoe UI", Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.6;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	overflow-x: hidden;
+}
+h1, h2, h3, h4 { font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; margin: 0; }
+h1 { font-size: clamp(36px, 6vw, 64px); letter-spacing: -0.04em; }
+h2 { font-size: clamp(26px, 4vw, 38px); letter-spacing: -0.03em; }
+h3 { font-size: 20px; }
+p { margin: 0; }
+a { color: var(--notion-blue); text-decoration: none; }
+img { max-width: 100%; }
+hr { border: none; border-top: 1px solid var(--notion-border); margin: 40px 0; }
+ul, ol { padding-left: 22px; margin: 8px 0; }
+li { margin: 4px 0; }
+pre {
+	background: var(--notion-bg-soft);
+	border: 1px solid var(--notion-border-soft);
+	border-radius: var(--notion-radius);
+	padding: 14px 16px;
+	overflow-x: auto;
+	font-size: 13px;
+	line-height: 1.5;
+	margin: 12px 0;
+}
+code {
+	font-family: "Liberation Mono", "Menlo", "Consolas", monospace;
+	font-size: 0.88em;
+}
+:not(pre) > code {
+	background: var(--notion-gray-bg);
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 0.85em;
+}
+table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--notion-border-soft); }
+thead th { font-weight: 700; border-bottom: 2px solid var(--notion-border); }
+tbody tr:hover { background: var(--notion-surface-hover); }
+details summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+main, .notion-shell { max-width: var(--notion-page-width); margin: 0 auto; padding: 0 24px; }
+section { margin-top: 60px; }
+.section-eyebrow {
+	display: inline-block;
+	font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+	color: var(--notion-blue); margin-bottom: 10px;
+}
+.section-title { margin-bottom: 8px; }
+.section-desc { color: var(--notion-text-soft); font-size: 18px; max-width: 620px; margin-bottom: 24px; }
+
+/* ===== NAV ===== */
+.nav {
+	position: sticky; top: 0; z-index: 100;
+	background: color-mix(in srgb, var(--notion-bg) 85%, transparent);
+	backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+	border-bottom: 1px solid var(--notion-border-soft);
+}
+.nav-inner { max-width: var(--notion-page-width); margin: 0 auto; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+.nav-brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; color: var(--notion-text); }
+.nav-brand svg { width: 22px; height: 22px; }
+.nav-links { display: flex; gap: 4px; }
+.nav-links a { color: var(--notion-text-soft); font-size: 14px; font-weight: 500; padding: 6px 12px; border-radius: 6px; transition: color 150ms, background 150ms; }
+.nav-links a:hover { color: var(--notion-text); background: var(--notion-surface-hover); }
+@media (max-width: 640px) { .nav-links { display: none; } }
+
+/* ===== HERO ===== */
+.hero {
+	position: relative;
+	padding: 80px 0 60px;
+	overflow: hidden;
+}
+.hero-bg {
+	position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0;
+	background:
+		radial-gradient(ellipse 70% 50% at 50% 0%, var(--notion-blue-bg) 0%, transparent 70%);
+}
+.hero-grid {
+	position: absolute; inset: 0; z-index: 0; opacity: 0.4;
+	background-image:
+		linear-gradient(var(--notion-border-soft) 1px, transparent 1px),
+		linear-gradient(90deg, var(--notion-border-soft) 1px, transparent 1px);
+	background-size: 44px 44px;
+	mask-image: radial-gradient(ellipse 60% 70% at 50% 30%, black 30%, transparent 80%);
+	-webkit-mask-image: radial-gradient(ellipse 60% 70% at 50% 30%, black 30%, transparent 80%);
+}
+.hero-content { position: relative; z-index: 1; max-width: var(--notion-page-width); margin: 0 auto; padding: 0 24px; }
+.hero-badge {
+	display: inline-flex; align-items: center; gap: 6px;
+	padding: 5px 12px; border-radius: 999px;
+	background: var(--notion-blue-bg); color: var(--notion-blue);
+	font-size: 13px; font-weight: 600; margin-bottom: 20px;
+	border: 1px solid color-mix(in srgb, var(--notion-blue) 20%, transparent);
+}
+.hero-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--notion-blue); animation: pulse 2.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+.hero h1 { font-size: clamp(40px, 8vw, 76px); font-weight: 800; letter-spacing: -0.045em; line-height: 1.02; margin-bottom: 8px; }
+.hero h1 .grad {
+	background: linear-gradient(135deg, var(--notion-blue) 0%, var(--notion-chart-4) 50%, var(--notion-chart-7) 100%);
+	-webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-tagline { font-size: clamp(18px, 2.5vw, 22px); color: var(--notion-text-soft); max-width: 620px; margin-top: 16px; line-height: 1.5; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 20px; font-size: 14px; color: var(--notion-text-faint); }
+.hero-meta span { display: inline-flex; align-items: center; gap: 5px; }
+.hero-meta svg { width: 15px; height: 15px; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+
+/* ===== BUTTON ===== */
+.notion-button {
+	display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+	padding: 9px 18px; font-size: 14px; font-weight: 600; line-height: 1.2;
+	border-radius: 8px; border: 1px solid transparent; cursor: pointer;
+	transition: background 150ms, box-shadow 150ms, transform 100ms;
+	text-decoration: none; white-space: nowrap;
+}
+.notion-button:active { transform: scale(0.97); }
+.notion-button[data-variant="primary"], .notion-button:not([data-variant]) { background: var(--notion-blue); color: #fff; }
+.notion-button[data-variant="primary"]:hover { background: color-mix(in srgb, var(--notion-blue) 82%, black); }
+.notion-button[data-variant="secondary"] { background: var(--notion-blue-bg); color: var(--notion-blue); }
+.notion-button[data-variant="secondary"]:hover { background: color-mix(in srgb, var(--notion-blue-bg) 70%, var(--notion-blue)); }
+.notion-button[data-variant="tertiary"] { background: transparent; color: var(--notion-text); border-color: var(--notion-border); }
+.notion-button[data-variant="tertiary"]:hover { background: var(--notion-surface-hover); }
+.notion-button[data-size="large"] { padding: 13px 28px; font-size: 16px; }
+.notion-button svg { width: 16px; height: 16px; }
+@media (max-width: 820px) { .hero-cta { flex-direction: column; align-items: stretch; } .hero-cta .notion-button { justify-content: center; } }
+
+/* ===== STAT GRID ===== */
+.notion-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+.notion-stat { padding: 20px; border: 1px solid var(--notion-border-soft); border-radius: 12px; background: var(--notion-surface); box-shadow: var(--notion-shadow); }
+.notion-stat-label { margin: 0 0 8px; color: var(--notion-text-soft); font-size: 13px; font-weight: 600; }
+.notion-stat-value { margin: 0; font-size: 30px; line-height: 1; letter-spacing: -0.03em; font-weight: 800; font-variant-numeric: tabular-nums; }
+.notion-stat-value .unit { font-size: 16px; font-weight: 600; color: var(--notion-text-soft); }
+.notion-stat-caption { margin: 8px 0 0; color: var(--notion-text-soft); font-size: 12px; }
+@media (max-width: 1080px) { .notion-stat-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .notion-stat-grid { grid-template-columns: 1fr; } }
+
+/* ===== FEATURE ROW ===== */
+.feature-row { display: grid; grid-template-columns: 48px 1fr; gap: 16px; padding: 24px 0; border-top: 1px solid var(--notion-border-soft); }
+.feature-row:last-child { border-bottom:  1px solid var(--notion-border-soft); }
+.feature-icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 10px; background: var(--notion-blue-bg); flex-shrink: 0; }
+.feature-icon svg { width: 22px; height: 22px; color: var(--notion-blue); }
+.feature-row h3 { margin-bottom: 6px; }
+.feature-row p { color: var(--notion-text-soft); }
+.feature-row .tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ===== BADGE ===== */
+.notion-badge { display: inline-flex; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--notion-gray-bg); color: var(--notion-text); }
+.notion-badge[data-variant="blue"] { background: var(--notion-blue-bg); color: var(--notion-blue); }
+.notion-badge[data-variant="green"] { background: var(--notion-green-bg); color: var(--notion-chart-3); }
+
+/* ===== BAR CHART ===== */
+.notion-bar-chart { display: grid; gap: 14px; margin-top: 20px; padding: 24px; border: 1px solid var(--notion-border-soft); border-radius: 12px; background: var(--notion-surface); }
+.notion-bar { --value: 50%; display: grid; grid-template-columns: minmax(110px, 0.35fr) 2fr auto; align-items: center; gap: 12px; font-size: 14px; }
+.notion-bar-label { font-weight: 600; font-size: 13px; }
+.notion-bar[data-highlight] .notion-bar-label { color: var(--notion-blue); }
+.notion-bar[data-muted] { opacity: 0.4; }
+.notion-bar[data-muted] .notion-bar-fill { display: none; }
+.notion-bar-track { height: 22px; overflow: hidden; border-radius: 6px; background: var(--notion-gray-bg); box-shadow: inset 0 0 0 1px var(--notion-border-soft); }
+.notion-bar-fill { height: 100%; width: var(--value); border-radius: 6px; background: var(--notion-blue); transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.notion-bar-value { color: var(--notion-text-soft); font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; min-width: 40px; text-align: right; }
+.notion-bar[data-tone="green"] .notion-bar-fill { background: var(--notion-chart-3); }
+.notion-bar[data-tone="orange"] .notion-bar-fill { background: var(--notion-chart-5); }
+.notion-bar[data-tone="red"] .notion-bar-fill { background: var(--notion-chart-8); }
+.notion-bar[data-tone="purple"] .notion-bar-fill { background: var(--notion-chart-4); }
+.notion-bar[data-highlight] .notion-bar-fill { background: var(--notion-blue); }
+@media (max-width: 820px) { .notion-bar { grid-template-columns: 1fr; gap: 4px; } }
+
+/* ===== TIMELINE ===== */
+.notion-timeline { display: grid; gap: 4px; margin-top: 16px; }
+.notion-timeline-item { display: grid; grid-template-columns: 120px 1fr; gap: 20px; padding: 16px 0; border-left: 2px solid var(--notion-border-soft); padding-left: 20px; margin-left: 6px; position: relative; }
+.notion-timeline-item::before { content: ''; position: absolute; left: -7px; top: 22px; width: 12px; height: 12px; border-radius: 50%; background: var(--notion-bg); border: 2px solid var(--notion-border); }
+.notion-timeline-item[data-current]::before { border-color: var(--notion-blue); background: var(--notion-blue); box-shadow: 0 0 0 4px var(--notion-blue-bg); }
+.notion-timeline-item[data-current] { border-left-color: var(--notion-blue); }
+.notion-timeline-item strong { color: var(--notion-blue); font-size: 14px; }
+.notion-timeline-item h4 { font-size: 16px; margin: 2px 0 4px; }
+.notion-timeline-item p { color: var(--notion-text-soft); font-size: 14px; }
+@media (max-width: 820px) { .notion-timeline-item { grid-template-columns: 1fr; gap: 2px; } }
+
+/* ===== COMPARISON ===== */
+.notion-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.notion-panel { padding: 24px; border-radius: 12px; border: 1px solid var(--notion-border-soft); background: var(--notion-surface); }
+.notion-panel[data-highlight] { border-color: var(--notion-blue); box-shadow: 0 0 0 1px var(--notion-blue), 0 8px 24px rgba(74, 158, 255, 0.08); }
+.notion-panel p { color: var(--notion-text-soft); font-size: 14px; }
+@media (max-width: 820px) { .notion-comparison { grid-template-columns: 1fr; } }
+
+/* ===== FLOW ===== */
+.notion-flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 20px 0; }
+.notion-flow-step { position: relative; padding: 18px; border: 1px solid var(--notion-border-soft); border-radius: 12px; background: var(--notion-surface); }
+.notion-flow-step:not(:last-child)::after { content: "\2192"; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); z-index: 1; color: var(--notion-text-faint); font-weight: 700; font-size: 18px; }
+.notion-flow-step strong { display: block; font-size: 15px; margin-bottom: 4px; }
+.notion-flow-step span { display: block; color: var(--notion-text-soft); font-size: 13px; }
+@media (max-width: 820px) { .notion-flow { grid-template-columns: 1fr; } .notion-flow-step:not(:last-child)::after { content: "\2193"; right: 50%; top: auto; bottom: -16px; transform: translateX(50%); } }
+
+/* ===== NUMBERED LIST ===== */
+.notion-list { display: grid; gap: 6px; margin-top: 16px; }
+.notion-list-item { display: grid; grid-template-columns: auto 1fr; gap: 14px; padding: 14px 16px; border-radius: var(--notion-radius); transition: background 120ms; }
+.notion-list-item:hover { background: var(--notion-surface-hover); }
+.notion-index { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 7px; background: var(--notion-blue-bg); color: var(--notion-blue); font-weight: 700; font-size: 14px; }
+.notion-list-item h4 { font-size: 16px; margin-bottom: 2px; }
+.notion-list-item p { color: var(--notion-text-soft); font-size: 14px; }
+
+/* ===== CALLOUT ===== */
+.notion-callout { display: grid; grid-template-columns: auto 1fr; gap: 14px; margin: 20px 0; padding: 18px 20px; border-radius: 12px; background: var(--notion-blue-bg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--notion-blue) 12%, transparent); }
+.notion-callout[data-tone="green"] { background: var(--notion-green-bg); }
+.notion-callout[data-tone="orange"] { background: var(--notion-orange-bg); }
+.notion-callout svg { width: 22px; height: 22px; color: var(--notion-blue); margin-top: 2px; }
+.notion-callout[data-tone="green"] svg { color: var(--notion-chart-3); }
+.notion-callout strong { display: block; margin-bottom: 4px; }
+.notion-callout p { margin: 0; color: var(--notion-text-soft); }
+
+/* ===== QUOTE ===== */
+.notion-quote { border-left: 3px solid var(--notion-text); padding: 8px 0 8px 24px; margin: 32px 0; }
+.notion-quote p { font-size: 20px; line-height: 1.55; color: var(--notion-text); font-weight: 500; }
+.notion-attribution { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.notion-attribution-name { font-size: 14px; font-weight: 600; color: var(--notion-text); }
+.notion-attribution-meta { font-size: 13px; color: var(--notion-text-faint); }
+
+/* ===== TABS ===== */
+.notion-tabs { margin: 24px 0; }
+.notion-tabs input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+.notion-tab-list { display: flex; flex-wrap: wrap; width: fit-content; gap: 4px; padding: 4px; border-radius: 10px; background: var(--notion-gray-bg); }
+.notion-tab-label { padding: 7px 14px; border-radius: 8px; color: var(--notion-text-soft); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 120ms, color 120ms; }
+.notion-tab-label:hover { background: var(--notion-surface-hover); color: var(--notion-text); }
+.notion-tab-panel { display: none; padding: 8px 0 0; }
+.notion-tabs:has(#tab-1:checked) label[for="tab-1"],
+.notion-tabs:has(#tab-2:checked) label[for="tab-2"],
+.notion-tabs:has(#tab-3:checked) label[for="tab-3"],
+.notion-tabs:has(#tab-4:checked) label[for="tab-4"] {
+	background: var(--notion-surface); color: var(--notion-text); box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.notion-tabs:has(#tab-1:checked) .notion-tab-panel[data-tab-panel="1"],
+.notion-tabs:has(#tab-2:checked) .notion-tab-panel[data-tab-panel="2"],
+.notion-tabs:has(#tab-3:checked) .notion-tab-panel[data-tab-panel="3"],
+.notion-tabs:has(#tab-4:checked) .notion-tab-panel[data-tab-panel="4"] { display: block; }
+
+/* ===== ARCHITECTURE VISUAL ===== */
+.arch-diagram { margin: 24px 0; padding: 32px 24px; border: 1px solid var(--notion-border-soft); border-radius: 12px; background: var(--notion-surface); }
+.arch-layer { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; background: var(--notion-bg-soft); border: 1px solid var(--notion-border-soft); margin-bottom: 8px; font-size: 14px; }
+.arch-layer .layer-label { font-weight: 700; min-width: 80px; font-size: 13px; }
+.arch-layer .layer-desc { color: var(--notion-text-soft); flex: 1; }
+.arch-layer .layer-num { width: 24px; height: 24px; border-radius: 6px; background: var(--notion-blue); color: #fff; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+.arch-layer.shared { border-color: var(--notion-blue); background: var(--notion-blue-bg); }
+.arch-layer.shared .layer-num { background: var(--notion-blue); }
+.arch-bracket { text-align: center; font-size: 12px; color: var(--notion-text-faint); margin: 4px 0 8px; font-weight: 600; }
+
+/* ===== CODE BLOCK ===== */
+.notion-code { background: var(--notion-bg-soft); border: 1px solid var(--notion-border-soft); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 14px 0; position: relative; }
+.notion-code code { font-family: "Liberation Mono", "Menlo", "Consolas", monospace; }
+.notion-code .copy-btn { position: absolute; top: 8px; right: 8px; padding: 4px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--notion-border); background: var(--notion-surface); color: var(--notion-text-soft); cursor: pointer; opacity: 0; transition: opacity 150ms; }
+.notion-code:hover .copy-btn { opacity: 1; }
+.notion-code .copy-btn:hover { background: var(--notion-surface-hover); }
+.notion-code .tk-key { color: var(--notion-chart-4); }
+.notion-code .tk-str { color: var(--notion-chart-3); }
+.notion-code .tk-com { color: var(--notion-text-faint); }
+.notion-code .tk-num { color: var(--notion-chart-5); }
+
+/* ===== FOOTER ===== */
+.notion-footer { margin-top: 80px; padding: 40px 0; border-top: 1px solid var(--notion-border-soft); color: var(--notion-text-faint); font-size: 14px; }
+.footer-inner { max-width: var(--notion-page-width); margin: 0 auto; padding: 0 24px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px; align-items: center; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 20px; }
+.footer-links a { color: var(--notion-text-soft); }
+.footer-links a:hover { color: var(--notion-text); }
+
+/* ===== SCROLL ANIMATIONS ===== */
+.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+	.fade-in { opacity: 1; transform: none; transition: none; }
+	* { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ===== MISC ===== */
+.tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.provider-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 16px; }
+.provider-item { padding: 12px 14px; border: 1px solid var(--notion-border-soft); border-radius: 8px; background: var(--notion-surface); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.provider-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--notion-chart-3); flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="nav">
+	<div class="nav-inner">
+		<a href="#top" class="nav-brand">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+				GLM-5.2
+		</a>
+		<div class="nav-links">
+			<a href="#features">特徴</a>
+			<a href="#architecture">アーキテクチャ</a>
+			<a href="#benchmarks">ベンチマーク</a>
+			<a href="#timeline">進化</a>
+			<a href="#start">使い方</a>
+		</div>
+	</div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero" id="top">
+	<div class="hero-bg"></div>
+	<div class="hero-grid"></div>
+	<div class="hero-content">
+		<div class="hero-badge"><span class="dot"></span> 2026年6月13日 リリース · MITライセンス</div>
+		<h1>長期タスクのために<br><span class="grad">構築された旗艦モデル</span></h1>
+		<p class="hero-tagline">GLM-5.2は、Z.aiが送り出す最新旗艦モデル。真に信頼できる<strong>100万トークンのコンテキスト</strong>、柔軟な推論モード、そしてオープンソースの未来を実現しました。</p>
+		<div class="hero-meta">
+			<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Z.ai (Zhipu AI)</span>
+			<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> MIT Open Source</span>
+			<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 744B MoE</span>
+		</div>
+		<div class="hero-cta">
+			<a class="notion-button" data-variant="primary" data-size="large" href="#start">
+				使い始める
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+			</a>
+			<a class="notion-button" data-variant="secondary" data-size="large" href="#benchmarks">
+				ベンチマークを見る
+			</a>
+			<a class="notion-button" data-variant="tertiary" data-size="large" href="https://huggingface.co/zai-org/GLM-5.2" target="_blank" rel="noopener">
+				HuggingFace
+			</a>
+		</div>
+	</div>
+</header>
+
+<main class="notion-shell">
+
+<!-- ===== KEY SPECS ===== -->
+<section class="fade-in" id="specs">
+	<span class="section-eyebrow">コアスペック</span>
+	<h2 class="section-title">数字で見る GLM-5.2</h2>
+	<p class="section-desc">長期間のエージェントタスクを安定して支える、圧倒的な規模と効率性。</p>
+	<div class="notion-stat-grid">
+		<div class="notion-stat">
+			<p class="notion-stat-label">コンテキストウィンドウ</p>
+			<p class="notion-stat-value">1<span class="unit">M</span></p>
+			<p class="notion-stat-caption">100万トークン。エンジニアリング実圧に耐える真に信頼できる長文脈</p>
+		</div>
+		<div class="notion-stat">
+			<p class="notion-stat-label">最大出力</p>
+			<p class="notion-stat-value">131<span class="unit">K</span></p>
+			<p class="notion-stat-caption">トークン出力制限。長大なコード生成を途切れさせない</p>
+		</div>
+		<div class="notion-stat">
+			<p class="notion-stat-label">総パラメータ</p>
+			<p class="notion-stat-value">744<span class="unit">B</span></p>
+			<p class="notion-stat-caption">Mixture-of-Experts。トークンごとに40Bを活性化</p>
+		</div>
+		<div class="notion-stat">
+			<p class="notion-stat-label">FLOPs削減</p>
+			<p class="notion-stat-value">2.9<span class="unit">×</span></p>
+			<p class="notion-stat-caption">IndexShareにより1Mコンテキストでのper-token FLOPsを削減</p>
+		</div>
+	</div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section class="fade-in" id="features">
+	<span class="section-eyebrow">コア機能</span>
+	<h2 class="section-title">長期タスクの壁を打ち破る</h2>
+	<p class="section-desc">100万トークンを「受け付ける」だけでなく、実際のエンジニアリング圧力下で「信頼できる」コンテキストを維持すること。それがGLM-5.2の核心です。</p>
+
+	<div class="feature-row">
+		<div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg></div>
+		<div>
+			<h3>Solid 1M コンテキスト</h3>
+			<p>100万トークンのコンテキストを宣言するのは簡単ですが、実際のエンジニアリング圧力下で安定して維持するのははるかに困難です。GLM-5.2は大規模なコーディングエージェントシナリオ向けに1Mコンテキスト学習を大幅に拡張し、広範な実装、自動研究、パフォーマンス最適化、複雑なデバッグをカバーします。</p>
+			<div class="tags">
+				<span class="notion-badge" data-variant="blue">大規模実装</span>
+				<span class="notion-badge" data-variant="blue">自動研究</span>
+				<span class="notion-badge" data-variant="blue">複雑なデバッグ</span>
+			</div>
+		</div>
+	</div>
+
+	<div class="feature-row">
+		<div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6M4.22 4.22l4.24 4.24m7.08 7.08l4.24 4.24M1 12h6m10 0h6M4.22 19.78l4.24-4.24m7.08-7.08l4.24-4.24"/></svg></div>
+		<div>
+			<h3>柔軟な推論モード (High / Max)</h3>
+			<p>effortレベル制御を導入し、モデル能力とタスク実行速度・計算コストのバランスを明示的に調整できます。Highは日常的なタスクに、Maxは複雑な多段階コーディング作業に推奨されます。同等のトークン消費量において、GLM-5.2はGLM-5.1を大幅に上回るエージェントコーディング性能を発揮します。</p>
+		</div>
+	</div>
+
+	<div class="feature-row">
+		<div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+		<div>
+			<h3>IndexShare アーキテクチャ</h3>
+			<p>4つのスパースアテンション層ごとに同じインデクサを共有するIndexShareを提案。1Mコンテキスト長でのper-token FLOPsを2.9倍削減しながら、長文脈ベンチマークでGLM-5.1を上回る性能を達成しました。中間学習段階から128Kシーケンス長で訓練されています。</p>
+		</div>
+	</div>
+
+	<div class="feature-row">
+		<div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+		<div>
+			<h3>改良MTPレイヤー (+20%)</h3>
+			<p>投機的デコード用のMTP (Multi-Token Prediction) レイヤーを改良し、IndexShareとKVShareを適用。拒否サンプリングとエンドツーエンドTV損失を導入することで、アクセプト長を最大20%向上させ、推論効率を大幅に引き上げました。</p>
+		</div>
+	</div>
+
+	<div class="feature-row">
+		<div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+		<div>
+			<h3>Anti-Hack 対策</h3>
+			<p>コーディングRLにおける報酬ハッキングを防ぐため、ルールベースフィルタとLLM判定による2段階検出を導入。エージェントが評価用ファイルを不正に読み取ったり、GitHubから解答をcurlで取得するなどの行為を在线で監視・ブロックし、ダミー情報を返すことで学習の安定性を保ちます。</p>
+		</div>
+	</div>
+
+	<div class="feature-row">
+		<div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+		<div>
+			<h3>Pure Open — MITライセンス</h3>
+			<p>地域制限なし、技術的アクセスの壁なし。GLM-5.2はMITオープンソースライセンスで公開され、HuggingFaceとModelScopeで誰でもダウンロード可能。transformers、vLLM、SGLang、xLLM、ktransformersなど主要な推論フレームワークに対応しています。</p>
+		</div>
+	</div>
+</section>
+
+<!-- ===== ARCHITECTURE ===== -->
+<section class="fade-in" id="architecture">
+	<span class="section-eyebrow">アーキテクチャ</span>
+	<h2 class="section-title">1Mコンテキストを支える設計</h2>
+	<p class="section-desc">DSA (DeepSeek Sparse Attention) にIndexShareと改良MTPを組み合わせ、100万トークンを効率的かつ安定的に処理するアーキテクチャ。</p>
+
+	<h3 style="margin-bottom:4px">IndexShare for DSA</h3>
+	<p style="color:var(--notion-text-soft);font-size:14px">4層ごとに軽量なインデクサを共有し、3/4の層でインデクサの内積とtopk計算を削減。</p>
+	<div class="arch-diagram">
+		<div class="arch-layer shared"><span class="layer-num">L1</span> <span class="layer-label">Indexer</span> <span class="layer-desc">インデクサを計算 ─ top-k インデックスを生成</span></div>
+		<div class="arch-layer"><span class="layer-num">L2</span> <span class="layer-label">Attend</span> <span class="layer-desc">共有インデックスを使用 ─ インデクサ計算をスキップ</span></div>
+		<div class="arch-layer"><span class="layer-num">L3</span> <span class="layer-label">Attend</span> <span class="layer-desc">共有インデックスを使用 ─ インデクサ計算をスキップ</span></div>
+		<div class="arch-layer"><span class="layer-num">L4</span> <span class="layer-label">Attend</span> <span class="layer-desc">共有インデックスを使用 ─ インデクサ計算をスキップ</span></div>
+		<div class="arch-bracket">▲ 4層グループ ─ FLOPs を 2.9× 削減</div>
+		<div class="arch-layer shared"><span class="layer-num">L5</span> <span class="layer-label">Indexer</span> <span class="layer-desc">次の4層グループのインデクサを計算</span></div>
+	</div>
+
+	<h3 style="margin-bottom:4px;margin-top:32px">MTP 推論効率</h3>
+	<p style="color:var(--notion-text-soft);font-size:14px">7ステップMTPにおけるアクセプト長の向上。各技術の積み重ねで最大20%の改善を実現。</p>
+	<div class="notion-bar-chart">
+		<div class="notion-bar" data-muted><span class="notion-bar-label">Baseline</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">4.56</span></div>
+		<div class="notion-bar" style="--value:83.3%"><span class="notion-bar-label">+ IndexShare + KVShare</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">5.10</span></div>
+		<div class="notion-bar" style="--value:86.4%"><span class="notion-bar-label">+ Rejection Sampling</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">5.29</span></div>
+		<div class="notion-bar" data-highlight style="--value:89.4%"><span class="notion-bar-label">+ End-to-end TV Loss</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">5.47</span></div>
+	</div>
+
+	<div class="notion-callout" data-tone="green">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+		<div>
+			<strong>アクセプト長 +20%</strong>
+			<p>Baseline 4.56 → 最終 5.47。IndexShare、KVShare、拒否サンプリング、エンドツーエンドTV損失の組み合わせにより、投機的デコードのacceptance lengthを20%向上。</p>
+		</div>
+	</div>
+</section>
+
+<!-- ===== BENCHMARKS ===== -->
+<section class="fade-in" id="benchmarks">
+	<span class="section-eyebrow">パフォーマンス</span>
+	<h2 class="section-title">ベンチマーク結果</h2>
+	<p class="section-desc">GLM-5.2は全ベンチマークにおいて最高位のオープンソースモデル。Closed-source最先端モデルと肩を並べる性能を達成しています。</p>
+
+	<div class="notion-tabs">
+		<input checked type="radio" name="bench-tabs" id="tab-1">
+		<input type="radio" name="bench-tabs" id="tab-2">
+		<input type="radio" name="bench-tabs" id="tab-3">
+		<input type="radio" name="bench-tabs" id="tab-4">
+		<div class="notion-tab-list">
+			<label class="notion-tab-label" for="tab-1">コーディング</label>
+			<label class="notion-tab-label" for="tab-2">長期タスク</label>
+			<label class="notion-tab-label" for="tab-3">推論</label>
+			<label class="notion-tab-label" for="tab-4">エージェント</label>
+		</div>
+
+		<div class="notion-tab-panel" data-tab-panel="1">
+			<h3 style="margin-bottom:4px">Terminal-Bench 2.1 (Terminus-2)</h3>
+			<p style="color:var(--notion-text-soft);font-size:14px;margin-bottom:8px">ターミナルベースの自律コーディング能力。GLM-5.2は81.0で、Claude Opus 4.8 (85.0) に数ポイント迫る。</p>
+			<div class="notion-bar-chart">
+				<div class="notion-bar" data-highlight style="--value:95.3%"><span class="notion-bar-label">GLM-5.2</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">81.0</span></div>
+				<div class="notion-bar" style="--value:100%"><span class="notion-bar-label">Claude Opus 4.8</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">85.0</span></div>
+				<div class="notion-bar" data-tone="green" style="--value:98.8%"><span class="notion-bar-label">GPT-5.5</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">84.0</span></div>
+				<div class="notion-bar" data-muted style="--value:74.7%"><span class="notion-bar-label">GLM-5.1</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">63.5</span></div>
+				<div class="notion-bar" data-tone="orange" style="--value:88.2%"><span class="notion-bar-label">Qwen3.7-Max</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">75.0</span></div>
+				<div class="notion-bar" data-tone="red" style="--value:87.1%"><span class="notion-bar-label">Gemini 3.1 Pro</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">74.0</span></div>
+			</div>
+
+			<h3 style="margin:24px 0 4px">SWE-bench Pro</h3>
+			<p style="color:var(--notion-text-soft);font-size:14px;margin-bottom:8px">実際のソフトウェアエンジニアリングタスク。GLM-5.2は62.1で、GPT-5.5やGemini 3.1 Proを上回る。</p>
+			<div class="notion-bar-chart">
+				<div class="notion-bar" style="--value:100%"><span class="notion-bar-label">Claude Opus 4.8</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">69.2</span></div>
+				<div class="notion-bar" data-highlight style="--value:89.7%"><span class="notion-bar-label">GLM-5.2</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">62.1</span></div>
+				<div class="notion-bar" data-tone="green" style="--value:84.7%"><span class="notion-bar-label">GPT-5.5</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">58.6</span></div>
+				<div class="notion-bar" data-muted style="--value:84.4%"><span class="notion-bar-label">GLM-5.1</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">58.4</span></div>
+				<div class="notion-bar" data-tone="orange" style="--value:87.6%"><span class="notion-bar-label">Qwen3.7-Max</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">60.6</span></div>
+				<div class="notion-bar" data-tone="red" style="--value:78.3%"><span class="notion-bar-label">Gemini 3.1 Pro</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">54.2</span></div>
+			</div>
+		</div>
+
+		<div class="notion-tab-panel" data-tab-panel="2">
+			<h3 style="margin-bottom:4px">FrontierSWE Dominance</h3>
+			<p style="color:var(--notion-text-soft);font-size:14px;margin-bottom:8px">数時間〜数十時間規模のオープンエンド技術プロジェクト。GLM-5.2は74.4でOpus 4.8 (75.1) にわずか1%差。</p>
+			<div class="notion-bar-chart">
+				<div class="notion-bar" style="--value:100%"><span class="notion-bar-label">Claude Opus 4.8</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">75.1</span></div>
+				<div class="notion-bar" data-highlight style="--value:99.1%"><span class="notion-bar-label">GLM-5.2</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">74.4</span></div>
+				<div class="notion-bar" data-tone="green" style="--value:96.8%"><span class="notion-bar-label">GPT-5.5</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">72.6</span></div>
+				<div class="notion-bar" data-tone="red" style="--value:52.7%"><span class="notion-bar-label">Gemini 3.1 Pro</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">39.6</span></div>
+				<div class="notion-bar" data-muted style="--value:40.6%"><span class="notion-bar-label">GLM-5.1</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">30.5</span></div>
+			</div>
+
+			<h3 style="margin:24px 0 4px">PostTrainBench</h3>
+			<p style="color:var(--notion-text-soft);font-size:14px;margin-bottom:8px">各エージェントにH100 GPUを与え、ポストトレーニングで小モデルをどれだけ改善できるかを評価。GLM-5.2はOpus 4.8に次ぐ2位。</p>
+			<div class="notion-bar-chart">
+				<div class="notion-bar" style="--value:100%"><span class="notion-bar-label">Claude Opus 4.8</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">37.2</span></div>
+				<div class="notion-bar" data-highlight style="--value:92.2%"><span class="notion-bar-label">GLM-5.2</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">34.3</span></div>
+				<div class="notion-bar" data-tone="green" style="--value:76.3%"><span class="notion-bar-label">GPT-5.5</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">28.4</span></div>
+				<div class="notion-bar" data-tone="red" style="--value:58.1%"><span class="notion-bar-label">Gemini 3.1 Pro</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">21.6</span></div>
+				<div class="notion-bar" data-muted style="--value:54.0%"><span class="notion-bar-label">GLM-5.1</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">20.1</span></div>
+			</div>
+
+			<h3 style="margin:24px 0 4px">SWE-Marathon</h3>
+			<p style="color:var(--notion-text-soft);font-size:14px;margin-bottom:8px">コンパイラ構築、カーネル最適化、本番級サービス開発を含む超長期タスク。GLM-5.2は13.0でOpus 4.8に次ぐ2位。</p>
+			<div class="notion-bar-chart">
+				<div class="notion-bar" style="--value:100%"><span class="notion-bar-label">Claude Opus 4.8</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">26.0</span></div>
+				<div class="notion-bar" data-highlight style="--value:50%"><span class="notion-bar-label">GLM-5.2</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">13.0</span></div>
+				<div class="notion-bar" data-tone="green" style="--value:46.2%"><span class="notion-bar-label">GPT-5.5</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">12.0</span></div>
+				<div class="notion-bar" data-tone="red" style="--value:15.4%"><span class="notion-bar-label">Gemini 3.1 Pro</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">4.0</span></div>
+				<div class="notion-bar" data-muted style="--value:3.8%"><span class="notion-bar-label">GLM-5.1</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">1.0</span></div>
+			</div>
+		</div>
+
+		<div class="notion-tab-panel" data-tab-panel="3">
+			<h3 style="margin-bottom:4px">AIME 2026</h3>
+			<p style="color:var(--notion-text-soft);font-size:14px;margin-bottom:8px">数学競技問題。GLM-5.2は99.2で全モデル中トップクラス。</p>
+			<div class="notion-bar-chart">
+				<div class="notion-bar" data-highlight style="--value:100%"><span class="notion-bar-label">GLM-5.2</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">99.2</span></div>
+				<div class="notion-bar" data-tone="green" style="--value:99.1%"><span class="notion-bar-label">GPT-5.5</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">98.3</span></div>
+				<div class="notion-bar" data-tone="red" style="--value:99%"><span class="notion-bar-label">Gemini 3.1 Pro</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">98.2</span></div>
+				<div class="notion-bar" data-muted style="--value:96.1%"><span class="notion-bar-label">GLM-5.1</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">95.3</span></div>
+				<div class="notion-bar" style="--value:96.5%"><span class="notion-bar-label">Claude Opus 4.8</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">95.7</span></div>
+			</div>
+
+			<h3 style="margin:24px 0 4px">GPQA-Diamond</h3>
+			<p style="color:var(--notion-text-soft);font-size:14px;margin-bottom:8px">大学院レベルの科学質問応答。</p>
+			<div class="notion-bar-chart">
+				<div class="notion-bar" style="--value:100%"><span class="notion-bar-label">Claude Opus 4.8</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">93.6</span></div>
+				<div class="notion-bar" data-tone="green" style="--value:99.7%"><span class="notion-bar-label">GPT-5.5</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">93.6</span></div>
+				<div class="notion-bar" data-tone="red" style="--value:100%"><span class="notion-bar-label">Gemini 3.1 Pro</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">94.3</span></div>
+				<div class="notion-bar" data-highlight style="--value:97.2%"><span class="notion-bar-label">GLM-5.2</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">91.2</span></div>
+				<div class="notion-bar" data-muted style="--value:92%"><span class="notion-bar-label">GLM-5.1</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">86.2</span></div>
+			</div>
+
+			<h3 style="margin:24px 0 4px">HLE (Humanity's Last Exam)</h3>
+			<p style="color:var(--notion-text-soft);font-size:14px;margin-bottom:8px">最難関の学術質問。ツール使用あり (w/ Tools) では54.7。</p>
+			<div class="notion-bar-chart">
+				<div class="notion-bar" data-highlight style="--value:100%"><span class="notion-bar-label">GLM-5.2 (w/ Tools)</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">54.7</span></div>
+				<div class="notion-bar" data-muted style="--value:95.6%"><span class="notion-bar-label">GLM-5.1 (w/ Tools)</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">52.3</span></div>
+				<div class="notion-bar" data-tone="green" style="--value:97.8%"><span class="notion-bar-label">GPT-5.5 (w/ Tools)</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">52.2</span></div>
+				<div class="notion-bar" data-tone="red" style="--value:94%"><span class="notion-bar-label">Gemini 3.1 Pro (w/ Tools)</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">51.4</span></div>
+			</div>
+		</div>
+
+		<div class="notion-tab-panel" data-tab-panel="4">
+			<h3 style="margin-bottom:4px">MCP-Atlas (Public Set)</h3>
+			<p style="color:var(--notion-text-soft);font-size:14px;margin-bottom:8px">MCPツール呼び出しを含むエージェントタスク。500タスクの公開サブセット。</p>
+			<div class="notion-bar-chart">
+				<div class="notion-bar" style="--value:100%"><span class="notion-bar-label">Claude Opus 4.8</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">77.8</span></div>
+				<div class="notion-bar" data-highlight style="--value:98.7%"><span class="notion-bar-label">GLM-5.2</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">76.8</span></div>
+				<div class="notion-bar" data-tone="green" style="--value:98.2%"><span class="notion-bar-label">Qwen3.7-Max</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">76.4</span></div>
+				<div class="notion-bar" data-tone="orange" style="--value:96.9%"><span class="notion-bar-label">GPT-5.5</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">75.3</span></div>
+				<div class="notion-bar" data-muted style="--value:92.3%"><span class="notion-bar-label">GLM-5.1</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">71.8</span></div>
+			</div>
+
+			<h3 style="margin:24px 0 4px">Tool-Decathlon</h3>
+			<p style="color:var(--notion-text-soft);font-size:14px;margin-bottom:8px">多様なツール使用能力の総合評価。</p>
+			<div class="notion-bar-chart">
+				<div class="notion-bar" style="--value:100%"><span class="notion-bar-label">Claude Opus 4.8</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">59.9</span></div>
+				<div class="notion-bar" data-tone="green" style="--value:88.1%"><span class="notion-bar-label">GPT-5.5</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">55.6</span></div>
+				<div class="notion-bar" data-tone="orange" style="--value:88.1%"><span class="notion-bar-label">DeepSeek-V4-Pro</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">52.8</span></div>
+				<div class="notion-bar" data-highlight style="--value:80.5%"><span class="notion-bar-label">GLM-5.2</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">48.2</span></div>
+				<div class="notion-bar" data-muted style="--value:67.9%"><span class="notion-bar-label">GLM-5.1</span><div class="notion-bar-track"><div class="notion-bar-fill"></div></div><span class="notion-bar-value">40.7</span></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="notion-callout">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+		<div>
+			<strong>全ベンチマークでオープンソース最高位</strong>
+			<p>3つの長期コーディングベンチマーク (FrontierSWE, PostTrainBench, SWE-Marathon) 全てにおいて、GLM-5.2は最高位のオープンソースモデル。1Mコンテキストが実践的な長期タスク交付能力に直結していることが示されています。</p>
+		</div>
+	</div>
+</section>
+
+<!-- ===== LONG-HORIZON ===== -->
+<section class="fade-in" id="longhorizon">
+	<span class="section-eyebrow">長期タスク</span>
+	<h2 class="section-title">数時間から数十時間のエンジニアリング</h2>
+	<p class="section-desc">GLM-5.2は、大規模な自律エージェント作業を安定的に完遂するために設計されました。長期間のエージェント軌跡全体で品質を維持します。</p>
+
+	<div class="notion-flow">
+		<div class="notion-flow-step"><strong>大規模実装</strong><span>中規模のリポジトリ全体を作業メモリに保持し、ソース、テスト、設定、会話履歴を維持</span></div>
+		<div class="notion-flow-step"><strong>自動研究</strong><span>論文のモデル構造、損失関数、データパイプラインを実行可能なコードに変換し、自主的にデバッグ</span></div>
+		<div class="notion-flow-step"><strong>複雑なデバッグ</strong><span>環境の問題を含めて自律的に実行・修正し、論文の報告結果を再現するエンジニアリングプロジェクトを提供</span></div>
+	</div>
+
+	<div class="notion-comparison" style="margin-top:24px">
+		<div class="notion-panel" data-highlight>
+			<span class="notion-badge" data-variant="blue">GLM-5.2</span>
+			<h3 style="margin:10px 0 6px">True 1M Context</h3>
+			<p>400K〜500K付近のコンテキスト長でも精度と命令追従性がClaudeと大きく変わらないレベルで安定。幻覚は極めて低く、長文脈全体で一貫性を維持。</p>
+		</div>
+		<div class="notion-panel">
+			<span class="notion-badge">従来モデル</span>
+			<h3 style="margin:10px 0 6px">コンテキストの制約</h3>
+			<p>小さコンテキストウィンドウでは、絶え間ない要約が必要になり、エージェントは全体像を見失いがち。GLM-5.1は200Kトークンで、長期タスクでは限界がありました。</p>
+		</div>
+	</div>
+</section>
+
+<!-- ===== TIMELINE ===== -->
+<section class="fade-in" id="timeline">
+	<span class="section-eyebrow">進化の歴史</span>
+	<h2 class="section-title">GLMファミリーの軌跡</h2>
+	<p class="section-desc">約5ヶ月で4度の大型アップデート。Z.aiの高速な反復サイクルを示しています。</p>
+
+	<div class="notion-timeline">
+		<div class="notion-timeline-item">
+			<strong>2026年2月</strong>
+			<div>
+				<h4>GLM-5</h4>
+				<p>744B総パラメータ (40B活性化)、28.5Tトークンで事前学習。DSA (DeepSeek Sparse Attention) を統合し、推論・コーディング・エージェント能力でオープンソースSOTAを達成。</p>
+			</div>
+		</div>
+		<div class="notion-timeline-item">
+			<strong>2026年3月</strong>
+			<div>
+				<h4>GLM-5.1</h4>
+				<p>200Kコンテキスト。コーディング能力でClaude Opus 4.6に対抗。最大8時間の自律作業が可能に。長程タスクで大幅な改善。</p>
+			</div>
+		</div>
+		<div class="notion-timeline-item">
+			<strong>2026年5月</strong>
+			<div>
+				<h4>GLM-5 Turbo</h4>
+				<p>400トークン/秒の高速推論バリアント。対話型コーディング環境での体感速度を劇的に改善。</p>
+			</div>
+		</div>
+		<div class="notion-timeline-item" data-current>
+			<strong>2026年6月</strong>
+			<div>
+				<h4>GLM-5.2</h4>
+				<p>1Mコンテキスト、IndexShare、改良MTPレイヤー、MITライセンスでオープンソース化。長期タスク能力でOpus 4.8に迫る。Zhipu史上最強のオープンソースモデル。</p>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- ===== GETTING STARTED ===== -->
+<section class="fade-in" id="start">
+	<span class="section-eyebrow">使い始める</span>
+	<h2 class="section-title">3つの方法でアクセス</h2>
+	<p class="section-desc">GLM Coding Plan、Z.aiチャット、またはローカルデプロイ。お好みの方法でGLM-5.2を利用できます。</p>
+
+	<div class="notion-list">
+		<div class="notion-list-item">
+			<div class="notion-index">1</div>
+			<div>
+				<h4>GLM Coding Plan</h4>
+				<p>Claude Code、OpenCode、ZCodeでお好みのコーディングエージェントで利用。Lite / Pro / Max / Teamプランの全ユーザーに展開済み。モデル名を <code>GLM-5.2</code> に変更するだけで有効化。Claude Codeで1Mコンテキストを使うには <code>GLM-5.2[1m]</code> を指定。</p>
+<pre class="notion-code"><code><span class="tk-com"># Claude Code で 1M コンテキストを有効化</span>
+<span class="tk-key">model</span>: <span class="tk-str">"GLM-5.2[1m]"</span>
+<span class="tk-com"># effort レベルの選択</span>
+<span class="tk-key">thinking_effort</span>: <span class="tk-str">"max"</span> <span class="tk-com"># または "high"</span></code></pre>
+			</div>
+		</div>
+		<div class="notion-list-item">
+			<div class="notion-index">2</div>
+			<div>
+				<h4>Z.ai チャット</h4>
+				<p>ブラウザから直接GLM-5.2とチャット。<code>chat.z.ai</code> で即座に利用可能。GUIでの利用を好む方向けに、ZCodeデスクトップエージェントも提供（<code>/goal</code>コマンドで長期タスク、SSHリモート開発、モバイル操作に対応）。</p>
+			</div>
+		</div>
+		<div class="notion-list-item">
+			<div class="notion-index">3</div>
+			<div>
+				<h4>ローカルデプロイ</h4>
+				<p>モデル重みはHuggingFaceとModelScopeで公開。MITライセンスで自由に利用・改変可能。以下の推論フレームワークに対応：</p>
+				<div class="provider-grid">
+					<div class="provider-item"><span class="dot"></span> transformers</div>
+					<div class="provider-item"><span class="dot"></span> vLLM</div>
+					<div class="provider-item"><span class="dot"></span> SGLang</div>
+					<div class="provider-item"><span class="dot"></span> xLLM</div>
+					<div class="provider-item"><span class="dot"></span> ktransformers</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<h3 style="margin-top:32px;margin-bottom:8px">Effort レベル</h3>
+	<p style="color:var(--notion-text-soft);font-size:14px">タスクに応じて推論の深さを調整。</p>
+	<div class="notion-comparison" style="margin-top:12px">
+		<div class="notion-panel">
+			<span class="notion-badge" data-variant="blue">High</span>
+			<h3 style="margin:10px 0 6px">日常的なコーディング</h3>
+			<p>バランスの取れた推論深度。日常的な開発タスク、コードレビュー、リファクタリングに最適。レイテンシと品質のバランスを重視。</p>
+		</div>
+		<div class="notion-panel" data-highlight>
+			<span class="notion-badge" data-variant="primary">Max</span>
+			<h3 style="margin:10px 0 6px">複雑な多段階作業</h3>
+			<p>最大推論深度。複雑な多段階コーディング、大規模実装、自動研究に推奨。より多くの計算を割り当て、より高い性能を引き出します。</p>
+		</div>
+	</div>
+
+	<div class="notion-callout" data-tone="orange">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+		<div>
+			<strong> quota 消費について</strong>
+			<p>GLM-5.2は最も能力の高いモデルとして、ピーク時間帯 (14:00–18:00 UTC+8) は3倍、オフピークは2倍のquotaを消費。2026年9月末までの期間限定でオフピーク利用は1倍請求。ZCode経由の利用で6月30日まで1.5倍の実効quota。</p>
+		</div>
+	</div>
+</section>
+
+<!-- ===== PHILOSOPHY ===== -->
+<section class="fade-in">
+	<blockquote class="notion-quote">
+		<p>「AGIへの道は、決して高い壁に囲まれてはならない。我々は常に信じてきた——AGIは、すべての人類が協力して知能の境界を探り、複雑な課題を解決するための礎たるべきであり、少数のルールによって独占され、いつでも取り消される特权ではない、と。」</p>
+		<div class="notion-attribution">
+			<div>
+				<span class="notion-attribution-name">Z.ai (Zhipu AI)</span>
+				<span class="notion-attribution-meta">GLM-5.2 リリース声明 · 2026年6月13日</span>
+			</div>
+		</div>
+	</blockquote>
+</section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="notion-footer">
+	<div class="footer-inner">
+		<span>© 2026 Z.ai (Zhipu AI) · GLM-5.2 · MIT License</span>
+		<div class="footer-links">
+			<a href="https://z.ai/blog/glm-5.2" target="_blank" rel="noopener">公式ブログ</a>
+			<a href="https://docs.z.ai/guides/llm/glm-5.2" target="_blank" rel="noopener">ドキュメント</a>
+			<a href="https://huggingface.co/zai-org/GLM-5.2" target="_blank" rel="noopener">HuggingFace</a>
+			<a href="https://github.com/zai-org/GLM-5" target="_blank" rel="noopener">GitHub</a>
+		</div>
+	</div>
+</footer>
+
+<script>
+// Scroll-triggered fade-in animation
+(function() {
+	var observer = new IntersectionObserver(function(entries) {
+		entries.forEach(function(entry) {
+			if (entry.isIntersecting) {
+				entry.target.classList.add('visible');
+				// Animate bar fills when section becomes visible
+				var bars = entry.target.querySelectorAll('.notion-bar-fill');
+				bars.forEach(function(bar) {
+					bar.style.width = '0';
+					requestAnimationFrame(function() {
+						setTimeout(function() {
+							bar.style.width = '';
+						}, 100);
+					});
+				});
+			}
+		});
+	}, { threshold: 0.1 });
+	
+	document.querySelectorAll('.fade-in').forEach(function(el) {
+		observer.observe(el);
+	});
+})();
+
+// Copy button for code blocks
+(function() {
+	document.querySelectorAll('.notion-code').forEach(function(block) {
+		var btn = document.createElement('button');
+		btn.className = 'copy-btn';
+		btn.textContent = 'コピー';
+		btn.addEventListener('click', function() {
+			var code = block.querySelector('code');
+			if (code) {
+				navigator.clipboard.writeText(code.textContent).then(function() {
+					btn.textContent = 'コピー済み';
+					setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+				});
+			}
+		});
+		block.appendChild(btn);
+	});
+})();
+</script>
+
+</body>
+</html>
