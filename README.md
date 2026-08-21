@@ -7,4 +7,4 @@ AIで生成したwebサイトを公開するためのリポジトリ。
 
 - https://daizu-007.github.io/PublicSiteForAI/glm52-site
 - https://daizu-007.github.io/PublicSiteForAI/opus48
-- https://daizu-007.github.io/PublicSiteForAI/ox-slpha
+- https://daizu-007.github.io/PublicSiteForAI/ox-alpha
