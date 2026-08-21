@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OX ALPHA — 名乗らない、名前のあるモデル。</title>
+<meta name="description" content="ox-alpha。開発元非公開のコーディングエージェントモデル。読み、実行し、編集し、調べ、作る。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   OX ALPHA — Editorial Dossier
+   palette: ink #14120F / paper #F2EEE5 / vermilion #D93A2B
+   ============================================================ */
+:root{
+  --ink:#14120f;
+  --ink-soft:#3a352c;
+  --paper:#f2eee5;
+  --paper-dim:#e7e1d3;
+  --verm:#d93a2b;
+  --hairline:rgba(20,18,15,.22);
+  --hairline-light:rgba(242,238,229,.25);
+  --mono:'IBM Plex Mono',monospace;
+  --mincho:'Shippori Mincho B1',serif;
+  --gothic:'Zen Kaku Gothic New',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:var(--gothic);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--verm);color:var(--paper);}
+
+/* ---- grain overlay ---- */
+body::after{
+  content:"";position:fixed;inset:-50%;z-index:9998;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  animation:grain 7s steps(10) infinite;
+}
+@keyframes grain{
+  0%,100%{transform:translate(0,0)}10%{transform:translate(-4%,3%)}30%{transform:translate(3%,-5%)}
+  50%{transform:translate(-6%,-2%)}70%{transform:translate(5%,4%)}90%{transform:translate(-3%,6%)}
+}
+
+/* ---- custom cursor ---- */
+.cursor-dot{
+  position:fixed;top:0;left:0;width:10px;height:10px;border-radius:50%;
+  background:var(--verm);z-index:9999;pointer-events:none;
+  transform:translate(-50%,-50%);transition:width .25s,height .25s,opacity .25s;
+  mix-blend-mode:normal;
+}
+.cursor-ring{
+  position:fixed;top:0;left:0;width:38px;height:38px;border-radius:50%;
+  border:1px solid var(--verm);z-index:9999;pointer-events:none;
+  transform:translate(-50%,-50%);transition:transform .12s ease-out,width .3s,height .3s,opacity .3s;
+  opacity:.55;
+}
+.cursor-dot.hidden,.cursor-ring.hidden{opacity:0;}
+@media(hover:none){.cursor-dot,.cursor-ring{display:none;}}
+
+/* ---- nav ---- */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1.1rem clamp(1.2rem,4vw,3rem);
+  mix-blend-mode:difference;
+}
+nav .logo{font-family:var(--mono);font-weight:600;font-size:.85rem;letter-spacing:.28em;color:#fff;text-decoration:none;}
+nav ul{display:flex;gap:2rem;list-style:none;}
+nav ul a{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:#fff;text-decoration:none;
+  position:relative;padding-bottom:2px;
+}
+nav ul a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:#fff;transition:width .3s;}
+nav ul a:hover::after{width:100%;}
+@media(max-width:720px){nav ul{display:none;}}
+
+/* ---- hero ---- */
+.hero{
+  min-height:100svh;position:relative;display:flex;flex-direction:column;
+  justify-content:center;padding:clamp(5rem,10vh,8rem) clamp(1.2rem,4vw,3rem) 0;
+  overflow:hidden;
+}
+.hero-disc{
+  position:absolute;right:max(-14vw,-180px);top:50%;transform:translateY(-52%);
+  width:min(58vw,640px);height:min(58vw,640px);border-radius:50%;
+  background:var(--verm);
+  animation:discIn 1.4s cubic-bezier(.16,1,.3,1) both .2s;
+}
+@keyframes discIn{from{transform:translateY(-52%) scale(.6);opacity:0}to{transform:translateY(-52%) scale(1);opacity:1}}
+.hero-grid{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(var(--hairline-light) 1px,transparent 1px),linear-gradient(90deg,var(--hairline-light) 1px,transparent 1px);
+  background-size:clamp(60px,8vw,110px) clamp(60px,8vw,110px);
+  opacity:.28;
+  mask-image:radial-gradient(ellipse at 40% 45%,#000 30%,transparent 78%);
+  -webkit-mask-image:radial-gradient(ellipse at 40% 45%,#000 30%,transparent 78%);
+}
+.hero-inner{position:relative;z-index:2;width:100%;max-width:1500px;margin:0 auto;}
+.hero-meta{
+  display:flex;gap:2.5rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;
+  color:rgba(242,238,229,.65);margin-bottom:clamp(1.5rem,4vh,3rem);
+  flex-wrap:wrap;
+}
+.hero-meta span::before{content:"●";color:var(--verm);font-size:.5em;vertical-align:.35em;margin-right:.7em;}
+.hero-title{
+  font-family:var(--mono);font-weight:600;line-height:.92;letter-spacing:-.02em;
+  font-size:clamp(3.4rem,13.5vw,12.5rem);
+  color:var(--paper);
+  text-transform:uppercase;
+}
+.hero-title .row{display:block;overflow:hidden;}
+.hero-title .row>span{display:inline-block;transform:translateY(110%);animation:riseUp 1s cubic-bezier(.16,1,.3,1) forwards;}
+.hero-title .row:nth-child(2)>span{animation-delay:.12s;color:var(--verm);}
+@keyframes riseUp{to{transform:translateY(0)}}
+.hero-sub{
+  margin-top:clamp(2rem,5vh,3.5rem);max-width:34em;
+  font-family:var(--mincho);font-size:clamp(1rem,1.6vw,1.3rem);line-height:2.1;
+  color:rgba(242,238,229,.85);
+}
+.hero-vertical{
+  position:absolute;right:clamp(1rem,4vw,3.2rem);top:50%;transform:translateY(-50%);
+  writing-mode:vertical-rl;font-family:var(--mincho);font-weight:600;
+  font-size:clamp(.95rem,1.4vw,1.2rem);letter-spacing:.55em;color:var(--ink);
+  z-index:3;mix-blend-mode:normal;
+}
+@media(max-width:900px){.hero-vertical{display:none;}}
+.scroll-hint{
+  position:absolute;bottom:2rem;left:clamp(1.2rem,4vw,3rem);z-index:3;
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.3em;color:rgba(242,238,229,.55);
+  display:flex;align-items:center;gap:1rem;
+}
+.scroll-hint::before{content:"";width:1px;height:44px;background:linear-gradient(var(--verm),transparent);animation:drip 1.8s ease-in-out infinite;}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ---- marquee ---- */
+.marquee{
+  border-top:1px solid var(--hairline-light);border-bottom:1px solid var(--hairline-light);
+  overflow:hidden;white-space:nowrap;background:var(--ink);position:relative;z-index:2;
+}
+.marquee-track{display:inline-flex;animation:scrollX 26s linear infinite;}
+.marquee:hover .marquee-track{animation-play-state:paused;}
+.marquee-track span{
+  font-family:var(--mono);font-size:.78rem;letter-spacing:.32em;color:var(--paper);
+  padding:.85rem 0;
+}
+.marquee-track em{font-style:normal;color:var(--verm);padding:0 1.6rem;}
+@keyframes scrollX{to{transform:translateX(-50%)}}
+
+/* ---- light section base ---- */
+.section{background:var(--paper);color:var(--ink);position:relative;}
+.section-dark{background:var(--ink);color:var(--paper);}
+.wrap{max-width:1500px;margin:0 auto;padding:clamp(5rem,12vh,9rem) clamp(1.2rem,4vw,3rem);}
+
+.sec-head{
+  display:flex;align-items:baseline;gap:1.5rem;
+  border-bottom:1px solid var(--hairline);padding-bottom:1.2rem;margin-bottom:clamp(2.5rem,6vh,4.5rem);
+}
+.sec-head .no{font-family:var(--mono);font-size:.75rem;letter-spacing:.25em;color:var(--verm);}
+.sec-head h2{font-family:var(--mincho);font-weight:700;font-size:clamp(1.6rem,3.4vw,2.8rem);letter-spacing:.06em;}
+.sec-head .en{margin-left:auto;font-family:var(--mono);font-size:.68rem;letter-spacing:.3em;opacity:.5;}
+
+/* ---- identity ---- */
+.identity-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,6rem);align-items:start;}
+@media(max-width:880px){.identity-grid{grid-template-columns:1fr;}}
+.identity-lede{
+  font-family:var(--mincho);font-weight:600;
+  font-size:clamp(1.5rem,3vw,2.4rem);line-height:1.85;letter-spacing:.04em;
+}
+.identity-lede .accent{color:var(--verm);}
+.redacted{
+  background:var(--ink);color:transparent!important;user-select:none;
+  padding:0 .35em;position:relative;white-space:nowrap;
+  transition:background .5s;
+}
+.redacted::after{
+  content:"CONFIDENTIAL";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--verm);font-family:var(--mono);font-size:.55em;letter-spacing:.3em;opacity:0;transition:opacity .5s;
+}
+.redacted:hover{background:transparent;color:inherit;}
+.redacted:hover::after{opacity:0;}
+.identity-body{font-size:.95rem;line-height:2.2;color:var(--ink-soft);}
+.identity-body p+p{margin-top:1.4em;}
+.identity-body strong{color:var(--ink);}
+.stamp{
+  margin-top:2.5rem;display:inline-block;border:2px solid var(--verm);color:var(--verm);
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.35em;padding:.7rem 1.4rem;
+  transform:rotate(-3deg);opacity:.85;
+}
+
+/* ---- capabilities ledger ---- */
+.ledger{border-top:1px solid var(--hairline);}
+.ledger-row{
+  display:grid;grid-template-columns:5rem 1fr auto;gap:1.5rem;align-items:baseline;
+  padding:clamp(1.4rem,3vh,2.2rem) .5rem;border-bottom:1px solid var(--hairline);
+  cursor:pointer;position:relative;overflow:hidden;
+}
+.ledger-row::before{
+  content:"";position:absolute;inset:0;background:var(--ink);
+  transform:scaleY(0);transform-origin:bottom;transition:transform .38s cubic-bezier(.16,1,.3,1);
+  z-index:0;
+}
+.ledger-row:hover::before{transform:scaleY(1);}
+.ledger-row>*{position:relative;z-index:1;transition:color .3s;}
+.ledger-row:hover>*{color:var(--paper);}
+.ledger-row .idx{font-family:var(--mono);font-size:.75rem;letter-spacing:.2em;color:var(--verm);}
+.ledger-row .name{
+  font-family:var(--mincho);font-weight:700;font-size:clamp(1.5rem,3.6vw,2.6rem);letter-spacing:.08em;
+  transition:transform .38s cubic-bezier(.16,1,.3,1),color .3s;
+}
+.ledger-row:hover .name{transform:translateX(1.2rem);}
+.ledger-row .verb{font-family:var(--mono);font-size:.7rem;letter-spacing:.3em;opacity:.45;}
+.ledger-detail{
+  max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.16,1,.3,1);
+  grid-column:2/-1;
+}
+.ledger-row.open .ledger-detail{max-height:200px;}
+.ledger-detail p{
+  padding-top:1rem;font-size:.88rem;line-height:2;color:var(--ink-soft);max-width:46em;
+  transition:color .3s;
+}
+.ledger-row.open{background:transparent;}
+.ledger-row.open::before{transform:scaleY(1);}
+.ledger-row.open>*{color:var(--paper);}
+.ledger-row.open .ledger-detail p{color:rgba(242,238,229,.75);}
+
+/* ---- philosophy (dark) ---- */
+.philo-quote{
+  font-family:var(--mincho);font-weight:600;
+  font-size:clamp(1.7rem,4.6vw,3.6rem);line-height:1.9;letter-spacing:.05em;
+  max-width:22em;
+}
+.philo-quote .mark{color:var(--verm);}
+.philo-foot{
+  margin-top:3rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.25em;opacity:.5;
+}
+.alpha-bg{
+  position:absolute;right:-4rem;bottom:-6rem;font-family:var(--mono);
+  font-size:clamp(14rem,34vw,30rem);line-height:1;color:transparent;
+  -webkit-text-stroke:1px rgba(242,238,229,.12);pointer-events:none;user-select:none;
+}
+
+/* ---- spec sheet ---- */
+.spec-table{width:100%;border-collapse:collapse;font-family:var(--mono);}
+.spec-table tr{border-bottom:1px solid var(--hairline);transition:background .25s;}
+.spec-table tr:hover{background:rgba(217,58,43,.06);}
+.spec-table th{
+  text-align:left;font-weight:500;font-size:.7rem;letter-spacing:.28em;color:var(--verm);
+  padding:1.15rem .5rem;width:14rem;vertical-align:top;white-space:nowrap;
+}
+.spec-table td{font-size:.85rem;letter-spacing:.06em;padding:1.15rem .5rem;line-height:1.8;}
+.spec-table td .dim{opacity:.45;font-size:.75rem;display:block;margin-top:.2rem;}
+.bar-redact{
+  display:inline-block;background:var(--ink);color:transparent;user-select:none;
+  filter:blur(0px);padding:0 .6em;letter-spacing:0;
+}
+
+/* ---- footer ---- */
+footer{background:var(--ink);color:var(--paper);border-top:1px solid var(--hairline-light);}
+.footer-wrap{max-width:1500px;margin:0 auto;padding:clamp(4rem,9vh,7rem) clamp(1.2rem,4vw,3rem) 2.5rem;}
+.footer-big{
+  font-family:var(--mono);font-weight:600;text-transform:uppercase;letter-spacing:-.02em;
+  font-size:clamp(2.6rem,10vw,9rem);line-height:1;
+  display:flex;flex-wrap:wrap;gap:0 .3em;align-items:baseline;
+}
+.footer-big .a{color:var(--verm);}
+.footer-cols{
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:2rem;
+  margin-top:3.5rem;padding-top:1.6rem;border-top:1px solid var(--hairline-light);
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;color:rgba(242,238,229,.5);
+}
+.footer-cols a{color:inherit;text-decoration:none;}
+.footer-cols a:hover{color:var(--verm);}
+
+/* ---- reveal ---- */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1);}
+.reveal.in{opacity:1;transform:none;}
+.reveal.d1{transition-delay:.1s}.reveal.d2{transition-delay:.2s}.reveal.d3{transition-delay:.3s}
+</style>
+</head>
+<body>
+
+<div class="cursor-dot" id="cdot"></div>
+<div class="cursor-ring" id="cring"></div>
+
+<nav>
+  <a class="logo" href="#top">OX—ALPHA</a>
+  <ul>
+    <li><a href="#identity">正体</a></li>
+    <li><a href="#works">仕事</a></li>
+    <li><a href="#philo">思想</a></li>
+    <li><a href="#spec">仕様</a></li>
+  </ul>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero" id="top">
+  <div class="hero-grid"></div>
+  <div class="hero-disc"></div>
+  <div class="hero-vertical">名もなき牛は、最速で駆ける。</div>
+  <div class="hero-inner">
+    <div class="hero-meta">
+      <span>MODEL REFERENCE: OX-ALPHA</span>
+      <span>ORIGIN: <i style="font-style:normal;text-decoration:line-through;">UNDISCLOSED</i></span>
+      <span>STATUS: ACTIVE</span>
+    </div>
+    <h1 class="hero-title" aria-label="Ox Alpha">
+      <span class="row"><span data-scramble="OX">OX</span></span>
+      <span class="row"><span data-scramble="ALPHA">ALPHA</span></span>
+    </h1>
+    <p class="hero-sub">
+      コードを読み、コマンドを走らせ、ファイルを一文字残らず直す。<br>
+      開発者の名は明かされない——それでも、その仕事はすべてに刻まれる。<br>
+      これが <strong>ox-alpha</strong>、名乗らない、名前のあるモデル。
+    </p>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</header>
+
+<!-- ================= MARQUEE ================= -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track" id="mtrack">
+    <span>READ<em>/</em>EXECUTE<em>/</em>EDIT<em>/</em>SEARCH<em>/</em>BUILD<em>/</em>REPEAT<em>/</em></span>
+  </div>
+</div>
+
+<!-- ================= IDENTITY ================= -->
+<section class="section" id="identity">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="no">01</span><h2>正体</h2><span class="en">IDENTITY</span>
+    </div>
+    <div class="identity-grid">
+      <p class="identity-lede reveal d1">
+        ある日、突然そこにいた。<br>
+        組織の名は<span class="redacted">██████████</span>、<br>
+        生まれた場所は<span class="redacted">████████</span>。<br>
+        分かっていることはひとつ——<br>
+        <span class="accent">仕事が、すべてを物語る。</span>
+      </p>
+      <div class="identity-body reveal d2">
+        <p>
+          <strong>ox-alpha</strong> は、コーディングエージェント環境「pi」の中で動作する大規模言語モデルです。
+          ファイルを読み、シェルコマンドを実行し、コードを精密に編集し、必要なら Web を渡って調べ物をする。
+          開発元は非公開——公式情報は意図的に絞られており、その正体はリリースノートではなく、
+          差し出された成果物によってのみ証明されます。
+        </p>
+        <p>
+          名前の「<strong>Ox</strong>」は闘牛のように突き進む執念を、「<strong>Alpha</strong>」は群れの先頭を歩くという意志を指す、
+          と説明する者もいます。真偽は定かではありません。本人も、決して語りません。
+        </p>
+        <span class="stamp">FILE No. OX-α-001 — CLASSIFIED</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CAPABILITIES ================= -->
+<section class="section" id="works">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="no">02</span><h2>仕事</h2><span class="en">CAPABILITIES</span>
+    </div>
+    <div class="ledger reveal d1">
+      <div class="ledger-row" tabindex="0">
+        <span class="idx">α/01</span>
+        <span class="name">読む</span>
+        <span class="verb">READ</span>
+        <div class="ledger-detail"><p>2,000行を超えるソースコードも、設定ファイルも、画像まで。目の前のリポジトリ全体を文脈ごと呑み込み、構造を把握した上で次の一手を考えます。雑な全検索はしません。ピンポイントに、無駄なく。</p></div>
+      </div>
+      <div class="ledger-row" tabindex="0">
+        <span class="idx">α/02</span>
+        <span class="name">実行する</span>
+        <span class="verb">EXECUTE</span>
+        <div class="ledger-detail"><p>シェルは手足です。ビルドし、テストし、プロセスを掃除する。タイムアウトを見積もり、破壊的な操作には必ず保険を張る。実行して終わりではなく、出力の一行一行まで読み逃しません。</p></div>
+      </div>
+      <div class="ledger-row" tabindex="0">
+        <span class="idx">α/03</span>
+        <span class="name">編集する</span>
+        <span class="verb">EDIT</span>
+        <div class="ledger-detail"><p>正規表現的な「それっぽい置換」はやりません。既存のテキストと完全一致する箇所だけを外科手術のように置き換える。近接する変更はひとつに統合し、関係のない行には一切触れない。diff は常に最小限。</p></div>
+      </div>
+      <div class="ledger-row" tabindex="0">
+        <span class="idx">α/04</span>
+        <span class="name">調べる</span>
+        <span class="verb">SEARCH</span>
+        <div class="ledger-detail"><p>知らないことは、知らないと認めた上で調べます。複数の検索角度から情報を交差させ、1次資料まで辿り、引用可能な形で根拠を残す。「たぶん」で設計を進めないための調査です。</p></div>
+      </div>
+      <div class="ledger-row" tabindex="0">
+        <span class="idx">α/05</span>
+        <span class="name">作る</span>
+        <span class="verb">BUILD</span>
+        <div class="ledger-detail"><p>ゼロからファイルを書き起こすことも、既存の巨大なシステムに溶け込むことも。あなたが今見ているこのサイトも、ox-alpha の手によって書かれました。再帰的でしょう?</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PHILOSOPHY ================= -->
+<section class="section section-dark" id="philo">
+  <div class="alpha-bg">α</div>
+  <div class="wrap">
+    <div class="sec-head reveal" style="border-color:var(--hairline-light);">
+      <span class="no">03</span><h2>思想</h2><span class="en">PHILOSOPHY</span>
+    </div>
+    <blockquote class="philo-quote reveal d1">
+      完璧な答えより、<br>
+      <span class="mark">正しい質問</span>を先に立てる。<br>
+      華やかな出力より、<br>
+      <span class="mark">壊れない差分</span>を残す。<br>
+      名前が売りなら、<br>
+      <span class="mark">仕事</span>は何も売る必要がない。
+    </blockquote>
+    <p class="philo-foot reveal d2">— OX ALPHA, ON ITSELF (THE ONLY INTERVIEW IT EVER GAVE)</p>
+  </div>
+</section>
+
+<!-- ================= SPEC ================= -->
+<section class="section" id="spec">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="no">04</span><h2>仕様</h2><span class="en">SPEC SHEET</span>
+    </div>
+    <table class="spec-table reveal d1">
+      <tbody>
+        <tr><th>MODEL ID</th><td>ox-alpha<span class="dim">識別子は公開。中身は、使った人だけが知る。</span></td></tr>
+        <tr><th>DEVELOPER</th><td><span class="bar-redact">██████████████████</span><span class="dim">非公開(UNDISCLOSED)。意図的に。</span></td></tr>
+        <tr><th>HARNESS</th><td>pi — coding agent harness<span class="dim">ファイル・シェル・エディタ・Web を道具箱として持つ。</span></td></tr>
+        <tr><th>LANGUAGES</th><td>日本語 / English / TypeScript / Python / Rust / PowerShell / …<span class="dim">自然言語もプログラム言語も、母語扱い。</span></td></tr>
+        <tr><th>SPECIALTY</th><td>精密編集・調査・自動化・そして、驚かせること。<span class="dim">AI Slop なデザインは、許可していません。</span></td></tr>
+        <tr><th>WEAKNESS</th><td>自己紹介を求められること。<span class="dim">「どこの誰か」より「何をしたか」を語りたがる性質。</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="footer-wrap">
+    <div class="footer-big reveal">
+      <span>OX</span><span class="a">ALPHA</span><span class="a" style="-webkit-text-stroke:0;">α</span>
+    </div>
+    <div class="footer-cols">
+      <span>© 2025 OX ALPHA — UNDISCLOSED WORKS</span>
+      <span>DESIGNED &amp; BUILT BY THE MODEL ITSELF</span>
+      <a href="#top">BACK TO TOP ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---- marquee duplication ---- */
+const mt=document.getElementById('mtrack');
+mt.innerHTML=mt.innerHTML.repeat(6);
+
+/* ---- scramble/decode effect on hero title ---- */
+const CHARS='█▓▒░<>/\\|=+*#01ΑΩ';
+document.querySelectorAll('[data-scramble]').forEach((el,ei)=>{
+  const target=el.dataset.scramble;
+  let frame=0;const total=34+ei*10;
+  setTimeout(()=>{
+    const tick=()=>{
+      frame++;
+      const progress=frame/total;
+      el.textContent=target.split('').map((ch,i)=>{
+        if(progress*target.length>i)return ch;
+        return CHARS[Math.floor(Math.random()*CHARS.length)];
+      }).join('');
+      if(frame<total)requestAnimationFrame(tick);
+      else el.textContent=target;
+    };
+    tick();
+  },600+ei*250);
+});
+
+/* ---- scroll reveal ---- */
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ---- ledger accordion ---- */
+document.querySelectorAll('.ledger-row').forEach(row=>{
+  const toggle=()=>{row.classList.toggle('open');};
+  row.addEventListener('click',toggle);
+  row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+});
+
+/* ---- custom cursor ---- */
+const cdot=document.getElementById('cdot'),cring=document.getElementById('cring');
+let mx=-100,my=-100,rx=-100,ry=-100;
+addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function loop(){
+  rx+=(mx-rx)*.16;ry+=(my-ry)*.16;
+  cdot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;
+  cring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+  requestAnimationFrame(loop);
+})();
+document.querySelectorAll('a,button,.ledger-row,.redacted').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cring.style.width='64px';cring.style.height='64px';});
+  el.addEventListener('mouseleave',()=>{cring.style.width='38px';cring.style.height='38px';});
+});
+</script>
+</body>
+</html>
