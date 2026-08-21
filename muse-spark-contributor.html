@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muse Spark 1.2 Contributor — 未来にコードを預ける人へ。</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F3EE;
+  --ink:#0E0E0F;
+  --ink-2:#2B2B2E;
+  --line:rgba(14,14,15,0.12);
+  --line-strong:rgba(14,14,15,0.18);
+  --orange:#FF3B1F;
+  --yellow:#FFD600;
+  --gray:#E9E7E2;
+  --muted:#6E6E73;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:"Inter","Noto Sans JP",system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  overflow-x:hidden;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--yellow)}
+
+/* grain */
+.grain{
+  position:fixed;inset:0;pointer-events:none;opacity:.07;z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply;
+}
+
+/* nav */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 32px;
+  border-bottom:1px solid var(--line);
+  background:rgba(246,243,238,0.82);
+  backdrop-filter:blur(12px);
+}
+.nav-left{display:flex;align-items:center;gap:14px}
+.mark{width:28px;height:28px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.08em}
+.nav-meta{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.nav-links{display:flex;gap:28px;font-size:13px;letter-spacing:.06em}
+.nav-links a{opacity:.6;transition:.2s}
+.nav-links a:hover{opacity:1}
+.nav-cta{font-family:"JetBrains Mono",monospace;font-size:12px;padding:9px 16px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);letter-spacing:.06em;transition:.2s}
+.nav-cta:hover{background:transparent;color:var(--ink)}
+@media(max-width:860px){ .nav-links{display:none} nav{padding:14px 18px}}
+
+/* hero */
+.hero{
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  min-height:100vh;
+  border-bottom:1px solid var(--line);
+  padding-top:62px;
+}
+.hero-left{
+  border-right:1px solid var(--line);
+  padding:56px 40px 40px;
+  display:flex;flex-direction:column;
+}
+.hero-right{
+  padding:32px;
+  background:#0E0E0F;
+  color:#F6F3EE;
+  position:relative;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+@media(max-width:960px){
+  .hero{grid-template-columns:1fr}
+  .hero-left{border-right:none;border-bottom:1px solid var(--line)}
+  .hero-right{min-height:560px}
+}
+.eyebrow{
+  font-family:"JetBrains Mono",monospace;
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  display:flex;align-items:center;gap:12px;
+  color:var(--muted);
+}
+.eyebrow i{width:8px;height:8px;background:var(--orange);display:inline-block;border-radius:50%;box-shadow:0 0 0 6px rgba(255,59,31,.12);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 6px rgba(255,59,31,.12)}50%{box-shadow:0 0 0 10px rgba(255,59,31,0)}100%{box-shadow:0 0 0 6px rgba(255,59,31,.12)}}
+.hero-h1{
+  font-family:"Instrument Serif",serif;
+  font-size:clamp(48px,7vw,92px);
+  line-height:.86;
+  letter-spacing:-.04em;
+  margin-top:24px;
+  font-weight:400;
+}
+.hero-h1 em{font-style:italic;font-weight:400;color:var(--orange)}
+.hero-h1 span{display:block}
+.hero-sub{
+  margin-top:22px;
+  font-size:17px;
+  line-height:1.8;
+  color:#2B2B2E;
+  max-width:520px;
+  font-family:"Noto Sans JP",sans-serif;
+}
+.hero-meta{
+  margin-top:auto;
+  padding-top:32px;
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:16px;
+  border-top:1px solid var(--line);
+}
+.hero-meta dt{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.hero-meta dd{font-family:"Instrument Serif",serif;font-size:22px;margin-top:4px}
+.hero-meta small{font-size:12px;color:var(--muted);font-family:"Inter",sans-serif}
+
+/* contributor card */
+.card-wrap{
+  flex:1;display:grid;place-items:center;
+  padding:20px 0;
+}
+.id-card{
+  width:100%;max-width:380px;
+  background:#F6F3EE;
+  color:var(--ink);
+  border:1px solid rgba(255,255,255,.08);
+  position:relative;
+  overflow:hidden;
+  transform:rotate(-1deg);
+  box-shadow:0 24px 48px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.1) inset;
+}
+.id-card::before{
+  content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg, transparent 0 120px, rgba(14,14,15,.04) 120px 121px);
+  pointer-events:none;
+}
+.card-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 18px;
+  border-bottom:1px solid var(--line);
+  font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+}
+.card-head b{font-size:11px;letter-spacing:.16em}
+.chip{padding:4px 8px;background:var(--orange);color:white;font-size:10px;font-weight:700}
+.card-body{padding:22px 18px 18px;display:grid;grid-template-columns:96px 1fr;gap:16px}
+.avatar{
+  width:96px;height:96px;background:var(--ink);position:relative;overflow:hidden;
+  display:grid;place-items:center;color:var(--bg);
+  font-family:"Instrument Serif",serif;font-size:42px;
+  border:1px solid var(--line-strong);
+}
+.avatar::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg, transparent 60%, rgba(255,59,31,.18));
+}
+.card-name{font-family:"Instrument Serif",serif;font-size:26px;line-height:1;letter-spacing:-.02em}
+.card-role{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:.06em}
+.card-stats{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{border:1px solid var(--line);padding:10px;background:white}
+.stat dt{font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.stat dd{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;margin-top:4px}
+.stat dd span{color:var(--orange)}
+.card-foot{
+  margin:0 18px 18px;
+  border:1px dashed rgba(14,14,15,.22);
+  padding:12px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.08em;
+}
+.card-foot code{font-size:11px;background:var(--ink);color:var(--yellow);padding:4px 8px}
+.tape{
+  position:absolute;top:-10px;left:50%;transform:translateX(-50%) rotate(1deg);
+  background:var(--yellow);padding:4px 18px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+.hero-right-foot{
+  margin-top:auto;
+  display:flex;justify-content:space-between;align-items:end;
+  font-family:"JetBrains Mono",monospace;font-size:11px;
+  color:rgba(246,243,238,.6);
+  border-top:1px solid rgba(246,243,238,.12);
+  padding-top:18px;
+}
+.hero-right-foot strong{color:var(--yellow);font-size:13px}
+
+/* marquee */
+.marquee{
+  border-bottom:1px solid var(--line);
+  overflow:hidden;white-space:nowrap;
+  padding:14px 0;
+  background:var(--ink);
+  color:var(--bg);
+  font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+}
+.marquee-track{display:inline-flex;animation:marq 22s linear infinite;gap:32px;align-items:center}
+.marquee-track span{display:inline-flex;align-items:center;gap:12px}
+.marquee-track i{width:6px;height:6px;background:var(--orange);display:inline-block;transform:rotate(45deg)}
+@keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* sections common */
+.section{padding:72px 40px;border-bottom:1px solid var(--line)}
+@media(max-width:700px){.section{padding:48px 20px}}
+.section-head{
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:32px;
+  align-items:start;
+}
+@media(max-width:900px){.section-head{grid-template-columns:1fr}}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:28px;height:1px;background:var(--orange)}
+.section-head h2{font-family:"Instrument Serif",serif;font-size:clamp(32px,4.5vw,56px);line-height:.9;letter-spacing:-.03em;font-weight:400;margin-top:12px}
+.section-head h2 em{font-style:italic;color:var(--orange)}
+.section-head p{font-size:16px;line-height:1.9;color:var(--ink-2);margin-top:16px;max-width:560px}
+
+/* manifesto */
+.manifesto{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+  border:1px solid var(--line);
+  margin-top:40px;
+  background:white;
+}
+.manifesto > div{padding:36px 32px}
+.manifesto > div + div{border-left:1px solid var(--line)}
+@media(max-width:800px){.manifesto{grid-template-columns:1fr}.manifesto > div + div{border-left:none;border-top:1px solid var(--line)}}
+.manifesto h3{font-family:"Instrument Serif",serif;font-size:24px;letter-spacing:-.02em}
+.manifesto h3 span{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--orange);display:block;letter-spacing:.14em;margin-bottom:8px}
+.manifesto p{font-size:14.5px;line-height:1.85;color:var(--ink-2);margin-top:10px}
+.manifesto ul{list-style:none;margin-top:18px;display:grid;gap:10px}
+.manifesto li{display:flex;gap:10px;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+.manifesto li::before{content:"—";color:var(--orange);font-family:"JetBrains Mono",monospace}
+
+/* specs grid */
+.specs{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+  margin-top:36px;
+}
+.specs > div{background:var(--bg);padding:28px}
+.specs .big{grid-column:span 7}
+.specs .small{grid-column:span 5}
+.specs .third{grid-column:span 4}
+.specs .half{grid-column:span 6}
+@media(max-width:900px){
+  .specs .big,.specs .small,.specs .third,.specs .half{grid-column:span 12}
+}
+.spec-label{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.spec-value{font-family:"Instrument Serif",serif;font-size:28px;margin-top:8px;letter-spacing:-.02em}
+.spec-desc{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.7}
+.spec-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.spec-list span{font-family:"JetBrains Mono",monospace;font-size:11px;padding:6px 10px;border:1px solid var(--line-strong);background:white}
+.bar{
+  height:6px;background:var(--gray);margin-top:14px;position:relative;overflow:hidden
+}
+.bar i{position:absolute;inset:0 0 0 0;background:var(--ink);width:70%}
+.bar.orange i{background:var(--orange)}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.mini{border:1px solid var(--line);padding:14px;background:white}
+.mini strong{font-family:"JetBrains Mono",monospace;font-size:12px}
+.mini p{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.6}
+
+/* pricing */
+.pricing{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+  margin-top:32px;
+}
+.pricing > div{padding:32px;background:white;position:relative}
+.pricing .featured{background:var(--ink);color:var(--bg)}
+@media(max-width:860px){.pricing{grid-template-columns:1fr}}
+.price-kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
+.featured .price-kicker{color:var(--yellow);opacity:1}
+.price-title{font-family:"Instrument Serif",serif;font-size:32px;margin-top:8px;letter-spacing:-.02em}
+.price-num{font-family:"Instrument Serif",serif;font-size:48px;line-height:1;letter-spacing:-.04em;margin-top:18px}
+.price-num small{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.06em;color:var(--muted)}
+.featured .price-num small{color:rgba(246,243,238,.6)}
+.price-num em{font-style:normal;color:var(--orange)}
+.featured .price-num em{color:var(--yellow)}
+.price-table{width:100%;margin-top:20px;border-collapse:collapse;font-family:"JetBrains Mono",monospace;font-size:12px}
+.price-table th{font-weight:500;text-align:left;padding:10px 0;border-bottom:1px solid var(--line);color:var(--muted);letter-spacing:.06em}
+.price-table td{padding:12px 0;border-bottom:1px solid rgba(14,14,15,.06)}
+.featured .price-table th{border-color:rgba(246,243,238,.12);color:rgba(246,243,238,.5)}
+.featured .price-table td{border-color:rgba(246,243,238,.08)}
+.badge{position:absolute;top:18px;right:18px;background:var(--yellow);color:var(--ink);font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;padding:6px 10px;font-weight:700}
+.note{margin-top:18px;font-size:12.5px;line-height:1.7;color:var(--muted);border-left:2px solid var(--orange);padding-left:12px}
+.featured .note{color:rgba(246,243,238,.65);border-color:var(--yellow)}
+
+/* calculator */
+.calc{
+  margin-top:24px;
+  border:1px solid var(--line);
+  background:var(--bg);
+  padding:24px;
+  display:grid;
+  grid-template-columns:1fr 280px;
+  gap:24px;
+}
+@media(max-width:860px){.calc{grid-template-columns:1fr}}
+.calc h4{font-family:"Instrument Serif",serif;font-size:22px}
+.calc p{font-size:13px;color:var(--muted);margin-top:6px}
+.range-row{margin-top:18px}
+.range-row label{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;display:flex;justify-content:space-between}
+.range-row input[type=range]{width:100%;margin-top:8px;accent-color:var(--orange)}
+.calc-result{
+  background:var(--ink);color:var(--bg);padding:20px;
+  display:flex;flex-direction:column;justify-content:center;
+}
+.calc-result dt{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
+.calc-result dd{font-family:"Instrument Serif",serif;font-size:32px;margin-top:6px}
+.calc-result dd small{font-family:"JetBrains Mono",monospace;font-size:11px;opacity:.6}
+.calc-result .saving{margin-top:12px;padding-top:12px;border-top:1px solid rgba(246,243,238,.12);font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--yellow)}
+
+/* benchmark */
+.bench{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:32px;
+}
+@media(max-width:800px){.bench{grid-template-columns:1fr}}
+.bench > div{background:white;padding:28px}
+.bench-num{font-family:"Instrument Serif",serif;font-size:44px;letter-spacing:-.04em}
+.bench-num em{color:var(--orange);font-style:normal}
+.bench-label{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.1em;color:var(--muted);margin-top:4px}
+.bench-bar{height:4px;background:var(--gray);margin-top:14px;position:relative}
+.bench-bar i{position:absolute;left:0;top:0;bottom:0;background:var(--ink)}
+.bench-vs{font-size:12px;color:var(--muted);margin-top:8px;font-family:"JetBrains Mono",monospace}
+.bench-vs strong{color:var(--ink)}
+
+/* for whom */
+.personas{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:32px}
+@media(max-width:860px){.personas{grid-template-columns:1fr}}
+.persona{background:white;padding:28px;position:relative;overflow:hidden}
+.persona::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--ink)}
+.persona:nth-child(2)::before{background:var(--orange)}
+.persona:nth-child(3)::before{background:var(--yellow)}
+.persona h3{font-family:"Instrument Serif",serif;font-size:20px}
+.persona p{font-size:13.5px;line-height:1.7;color:var(--muted);margin-top:8px}
+.persona ul{margin-top:14px;list-style:none;display:grid;gap:8px}
+.persona li{font-size:13px;display:flex;gap:8px;align-items:start}
+.persona li i{width:16px;height:16px;border:1px solid var(--line-strong);display:grid;place-items:center;font-size:10px;margin-top:2px;flex-shrink:0}
+
+/* story */
+.story{
+  display:grid;
+  grid-template-columns:420px 1fr;
+  gap:40px;
+  margin-top:40px;
+  align-items:center;
+}
+@media(max-width:900px){.story{grid-template-columns:1fr}}
+.story-visual{
+  aspect-ratio:4/5;
+  background:var(--ink);
+  position:relative;
+  overflow:hidden;
+  padding:24px;
+  display:flex;flex-direction:column;
+  color:var(--bg);
+}
+.story-visual::before{
+  content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(transparent 95%, rgba(246,243,238,.06) 95%),
+    linear-gradient(90deg, transparent 95%, rgba(246,243,238,.06) 95%);
+  background-size:24px 24px;
+}
+.code-lines{font-family:"JetBrains Mono",monospace;font-size:11px;line-height:1.9;opacity:.9;position:relative}
+.code-lines b{color:var(--yellow)}
+.code-lines em{color:var(--orange);font-style:normal}
+.story-text h3{font-family:"Instrument Serif",serif;font-size:36px;line-height:.95;letter-spacing:-.03em}
+.story-text h3 em{font-style:italic;color:var(--orange)}
+.story-text p{font-size:15px;line-height:1.9;color:var(--ink-2);margin-top:16px}
+.quote{
+  margin-top:20px;
+  border-left:3px solid var(--orange);
+  padding:16px 20px;
+  background:white;
+  font-family:"Instrument Serif",serif;
+  font-size:18px;
+  line-height:1.6;
+  font-style:italic;
+}
+
+/* cta */
+.cta{
+  background:var(--ink);
+  color:var(--bg);
+  padding:64px 40px;
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:40px;
+  align-items:center;
+  position:relative;
+  overflow:hidden;
+}
+@media(max-width:900px){.cta{grid-template-columns:1fr;padding:40px 20px}}
+.cta::before{
+  content:"CONTRIBUTOR";
+  position:absolute;right:-20px;bottom:-18px;
+  font-family:"Instrument Serif",serif;
+  font-size:140px;line-height:1;letter-spacing:-.06em;
+  color:rgba(246,243,238,.06);
+  pointer-events:none;
+}
+.cta h2{font-family:"Instrument Serif",serif;font-size:clamp(32px,4vw,48px);line-height:.9;letter-spacing:-.03em;font-weight:400;position:relative}
+.cta h2 em{font-style:italic;color:var(--yellow)}
+.cta p{margin-top:14px;color:rgba(246,243,238,.7);line-height:1.8;position:relative}
+.cta-actions{position:relative;display:grid;gap:12px}
+.btn-primary{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px;background:var(--yellow);color:var(--ink);
+  font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.06em;font-weight:700;
+  transition:.2s;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(0,0,0,.2)}
+.btn-ghost{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px;border:1px solid rgba(246,243,238,.18);color:var(--bg);
+  font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.06em;
+}
+.btn-ghost:hover{background:rgba(246,243,238,.06)}
+
+/* footer */
+footer{
+  padding:28px 40px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;
+  color:var(--muted);
+  border-top:1px solid var(--line);
+}
+@media(max-width:700px){footer{flex-direction:column;gap:12px;padding:24px 20px;text-align:center}}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(14px);transition:.7s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* magnetic */
+.magnetic{transition:transform .2s}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<nav>
+  <div class="nav-left">
+    <div class="mark">M²</div>
+    <div>
+      <div style="font-family:'Instrument Serif',serif;font-size:14px;letter-spacing:-.02em;line-height:1">Muse Spark</div>
+      <div class="nav-meta">v1.2 — Contributor Edition</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="#philosophy">思想</a>
+    <a href="#specs">スペック</a>
+    <a href="#pricing">プラン</a>
+    <a href="#bench">ベンチマーク</a>
+  </div>
+  <a class="nav-cta" href="#join">Contributorになる →</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-left">
+    <div class="eyebrow"><i></i> Meta AI · 2026.08.05 Release · Contributor Program</div>
+    <h1 class="hero-h1">
+      <span>未来に</span>
+      <span>コードを</span>
+      <span><em>預ける</em>という</span>
+      <span>選択。</span>
+    </h1>
+    <p class="hero-sub">
+      Muse Spark 1.2 Contributorは、同じ最先端モデルを、<strong>12分の1の価格</strong>で使えるもうひとつのID。<br>
+      代わりに、あなたのプロンプトと出力が、次世代のモデルを育てる養分になる。安さの裏にあるのは、値引きではなく<span style="background:var(--yellow);padding:0 4px">参加</span>だ。
+    </p>
+    <dl class="hero-meta">
+      <div>
+        <dt>Context Window</dt>
+        <dd>1,048,576</dd>
+        <small>tokens · 長編小説10冊分を一気に</small>
+      </div>
+      <div>
+        <dt>Input / Output</dt>
+        <dd><span style="color:var(--orange)">$0.10</span> / $0.20</dd>
+        <small>per 1M tokens · Contributor価格</small>
+      </div>
+      <div>
+        <dt>Model ID</dt>
+        <dd style="font-family:'JetBrains Mono',monospace;font-size:15px">muse-spark-1.2-contributor</dd>
+        <small>Meta Model API 直結</small>
+      </div>
+    </dl>
+  </div>
+
+  <div class="hero-right">
+    <div style="display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(246,243,238,.5)">
+      <span>Contributor Passport</span>
+      <span>No. 012 — Valid Until ∞</span>
+    </div>
+
+    <div class="card-wrap">
+      <div class="id-card magnetic" id="idCard">
+        <div class="tape">CONTRIBUTOR</div>
+        <div class="card-head">
+          <b>META AI</b>
+          <span class="chip">ACTIVE</span>
+        </div>
+        <div class="card-body">
+          <div class="avatar">C<span style="font-size:18px;position:absolute;bottom:8px;right:8px;background:var(--yellow);color:var(--ink);padding:2px 6px;font-family:'JetBrains Mono',monospace;font-weight:700">1.2</span></div>
+          <div>
+            <div class="card-name">Contributor<br>Pass</div>
+            <div class="card-role">Muse Spark 1.2 · Agentic Coder</div>
+            <div class="card-stats">
+              <div class="stat">
+                <dt>Rate Limit</dt>
+                <dd>60 <span>req/min</span></dd>
+              </div>
+              <div class="stat">
+                <dt>Discount</dt>
+                <dd><span>92%</span> off</dd>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-foot">
+          <span>MODEL ID</span>
+          <code>muse-spark-1.2-contributor</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right-foot">
+      <div>
+        <div style="opacity:.6">Standard $1.25 →</div>
+        <strong>$0.10 / 1M input</strong>
+      </div>
+      <div style="text-align:right">
+        <div style="opacity:.6">データは学習に利用されます</div>
+        <div style="color:var(--bg)">私的なコードは Standard を</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <span>Terminal-Bench 2.1 — 82.9% <i></i></span>
+    <span>DeepSWE v1.1 — 59.3% <i></i></span>
+    <span>1M Context <i></i></span>
+    <span>Parallel Tool Calling <i></i></span>
+    <span>Built-in Web Search <i></i></span>
+    <span>Muse Code Co-trained <i></i></span>
+    <span>Terminal-Bench 2.1 — 82.9% <i></i></span>
+    <span>DeepSWE v1.1 — 59.3% <i></i></span>
+    <span>1M Context <i></i></span>
+    <span>Parallel Tool Calling <i></i></span>
+  </div>
+</div>
+
+<section class="section reveal" id="philosophy">
+  <div class="section-head">
+    <div>
+      <div class="kicker">Philosophy</div>
+      <h2>安さじゃない。<br><em>共犯</em>だ。</h2>
+    </div>
+    <p>
+      同じチェックポイント、同じ性能。違うのは契約だけ。<br>
+      Contributorは、あなたの試行錯誤をMetaに預ける代わりに、研究開発のコストを肩代わりしてもらうプログラム。<br>
+      クローズドな天才より、オープンな共犯者が未来を速くする。
+    </p>
+  </div>
+
+  <div class="manifesto">
+    <div>
+      <h3><span>01 — WHAT IT IS</span>同じモデル、別の約束</h3>
+      <p>
+        Muse Spark 1.2 Contributorは、Standardと完全に同一のモデル。性能も、コンテキスト長も、ツール呼び出しの精度も変わらない。違うのは、プロンプトと出力が「製品改善のために利用される」ことに同意するかどうか。
+      </p>
+      <ul>
+        <li>価格は Input $0.10 / Output $0.20（Standardは $1.25 / $4.25）</li>
+        <li>キャッシュ入力は $0.002 / 1M — 長文セッションが桁違いに安い</li>
+        <li>推論は常時オン、出力トークンとして課金</li>
+      </ul>
+    </div>
+    <div>
+      <h3><span>02 — WHAT IT IS NOT</span>無料の餌ではない</h3>
+      <p>
+        これはオープンソースでも、寄付でもない。明確なトレードオフだ。機密コード、個人情報、漏れてはいけないアイデアには向かない。その線引きができる人だけが、賢く使いこなせる。
+      </p>
+      <ul>
+        <li>本番ワークロードには不向き。60 req/min のレート制限</li>
+        <li>利用は Meta Model API 直結のみ。OpenRouter等の集約経由は不可</li>
+        <li>プロトタイプ、学習、個人プロジェクトに最適</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" id="specs">
+  <div class="section-head">
+    <div>
+      <div class="kicker">Capabilities</div>
+      <h2>コーディングの<br><em>実務</em>のために。</h2>
+    </div>
+    <p>
+      ベンチマークの数字より、初手の正確さとツール呼び出しの信頼性。<br>
+      Muse Codeと共に訓練された、エージェント的コーディングのためのモデル。
+    </p>
+  </div>
+
+  <div class="specs">
+    <div class="big">
+      <div class="spec-label">Context — 長期記憶</div>
+      <div class="spec-value">1,048,576 tokens</div>
+      <div class="spec-desc">リポジトリ全体、設計書、ログを一つのセッションで保持。コンテキスト圧縮とゴール条件付けで、長いタスクを途切れさせない。</div>
+      <div class="bar"><i style="width:100%"></i></div>
+      <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px">
+        <span>0</span><span>1M tokens</span>
+      </div>
+    </div>
+    <div class="small">
+      <div class="spec-label">Inputs</div>
+      <div class="spec-value" style="font-size:22px">Text / Image / Video / Audio / PDF</div>
+      <div class="spec-desc">マルチモーダル入力にネイティブ対応。スクショからバグを、動画から仕様を、PDFから要件を直接読む。</div>
+      <div class="spec-list">
+        <span>Structured Output</span><span>Parallel Tools</span><span>Web Search + Citation</span>
+      </div>
+    </div>
+    <div class="third">
+      <div class="spec-label">Agentic Coding</div>
+      <div class="spec-value" style="font-size:20px">Planning → Execution</div>
+      <div class="spec-desc">計画、目標条件付け、コンテキスト圧縮。多エージェントでの自律実行を前提に設計。</div>
+      <div class="mini-grid">
+        <div class="mini"><strong>Daytona Sandbox</strong><p>隔離環境で評価・実行</p></div>
+        <div class="mini"><strong>Muse Code</strong><p>共訓練されたターミナルエージェント</p></div>
+      </div>
+    </div>
+    <div class="third">
+      <div class="spec-label">Reliability</div>
+      <div class="spec-value" style="font-size:20px">First-attempt accuracy</div>
+      <div class="spec-desc">一発目の成功率と、ツール呼び出しの安定性が前世代から大幅に向上。</div>
+      <div class="bar orange"><i style="width:82%"></i></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px">信頼性 — 高</div>
+    </div>
+    <div class="third">
+      <div class="spec-label">Reasoning</div>
+      <div class="spec-value" style="font-size:20px">Always on</div>
+      <div class="spec-desc">思考プロセスは常時有効。出力トークンとして課金され、省略不可。深い推論をデフォルトで。</div>
+      <div style="margin-top:14px;padding:12px;background:white;border:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6">
+        <span style="color:var(--orange)">●</span> reasoning = output tokens<br>
+        <span style="color:var(--muted)">透過的で、隠しコストなし</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" id="pricing">
+  <div class="section-head">
+    <div>
+      <div class="kicker">Pricing</div>
+      <h2>同じ頭脳。<br><em>12分の1</em>の値段。</h2>
+    </div>
+    <p>
+      価格は思想を表す。Standardは「秘密を守る価格」、Contributorは「未来を共有する価格」。<br>
+      どちらが正しいかではなく、どちらが今のあなたに合うかだ。
+    </p>
+  </div>
+
+  <div class="pricing">
+    <div>
+      <div class="price-kicker">Standard Tier</div>
+      <div class="price-title">秘密を守る</div>
+      <div class="price-num">$1.25 <small>/ 1M input</small></div>
+      <div class="price-num" style="font-size:28px;margin-top:6px">$4.25 <small>/ 1M output</small></div>
+      <table class="price-table">
+        <tr><th>項目</th><th style="text-align:right">料金</th></tr>
+        <tr><td>Input</td><td style="text-align:right">$1.25 / 1M</td></tr>
+        <tr><td>Cached input</td><td style="text-align:right">$0.02 / 1M</td></tr>
+        <tr><td>Output</td><td style="text-align:right">$4.25 / 1M</td></tr>
+        <tr><td>学習利用</td><td style="text-align:right">なし（プライベート）</td></tr>
+        <tr><td>レート制限</td><td style="text-align:right">高スループット</td></tr>
+      </table>
+      <div class="note">機密コード・顧客データ・未公開プロダクトは迷わずこちら。本番環境のデフォルト。</div>
+    </div>
+    <div class="featured">
+      <div class="badge">92% OFF · CONTRIBUTOR</div>
+      <div class="price-kicker">Contributor Tier</div>
+      <div class="price-title">未来を共有する</div>
+      <div class="price-num"><em>$0.10</em> <small>/ 1M input</small></div>
+      <div class="price-num" style="font-size:28px;margin-top:6px"><em>$0.20</em> <small>/ 1M output</small></div>
+      <table class="price-table">
+        <tr><th>項目</th><th style="text-align:right">料金</th></tr>
+        <tr><td>Input</td><td style="text-align:right">$0.10 / 1M</td></tr>
+        <tr><td>Cached input</td><td style="text-align:right">$0.002 / 1M</td></tr>
+        <tr><td>Output</td><td style="text-align:right">$0.20 / 1M</td></tr>
+        <tr><td>学習利用</td><td style="text-align:right">あり（改善に利用）</td></tr>
+        <tr><td>レート制限</td><td style="text-align:right">60 req/min</td></tr>
+      </table>
+      <div class="note">学習・試作・個人開発・OSS。あなたのアウトプットが次の1.3を作る。安さは、貢献の対価。</div>
+    </div>
+  </div>
+
+  <div class="calc reveal">
+    <div>
+      <h4>いくら節約できる？</h4>
+      <p>スライダーで月間トークン量を試算。Contributorの破壊力がわかる。</p>
+      <div class="range-row">
+        <label><span>Input tokens / 月</span><span id="inputVal" style="color:var(--orange);font-weight:700">10M</span></label>
+        <input type="range" id="inputRange" min="1" max="100" value="10">
+      </div>
+      <div class="range-row">
+        <label><span>Output tokens / 月</span><span id="outputVal" style="color:var(--orange);font-weight:700">5M</span></label>
+        <input type="range" id="outputRange" min="1" max="50" value="5">
+      </div>
+    </div>
+    <div class="calc-result">
+      <div>
+        <dt>Standard 料金</dt>
+        <dd id="standardPrice">$33.75</dd>
+      </div>
+      <div style="margin-top:14px">
+        <dt>Contributor 料金</dt>
+        <dd id="contribPrice" style="color:var(--yellow)">$2.00</dd>
+      </div>
+      <div class="saving" id="saving">▲ $31.75 節約 (94% off)</div>
+      <div style="margin-top:10px;font-size:11px;opacity:.6;font-family:'JetBrains Mono',monospace">※ キャッシュ除く概算。実際はさらに安くなることも。</div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" id="bench">
+  <div class="section-head">
+    <div>
+      <div class="kicker">Benchmarks</div>
+      <h2>数字は<br><em>正直</em>だ。</h2>
+    </div>
+    <p>
+      Meta公表値（Muse Codeと組み合わせたエージェント評価）。Claude Opus 5にはわずかに届かないが、コストで圧倒する。<br>
+      費用対効果で選ぶなら、議論の余地はない。
+    </p>
+  </div>
+
+  <div class="bench">
+    <div>
+      <div class="bench-label">Terminal-Bench 2.1</div>
+      <div class="bench-num">82.9<em>%</em></div>
+      <div class="bench-bar"><i style="width:82.9%"></i></div>
+      <div class="bench-vs">vs Claude Opus 5 <strong>86.7%</strong> — わずか3.8pt差</div>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6">ターミナル操作の自律性を測るベンチ。実務の再現性が高い。</p>
+    </div>
+    <div>
+      <div class="bench-label">DeepSWE v1.1</div>
+      <div class="bench-num">59.3<em>%</em></div>
+      <div class="bench-bar"><i style="width:59.3%"></i></div>
+      <div class="bench-vs">vs Claude Opus 5 <strong>65.0%</strong> — 実用十分な水準</div>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.6">実世界のソフトウェア工学タスク。エージェントの総合力が試される。</p>
+    </div>
+    <div style="background:var(--ink);color:var(--bg)">
+      <div class="bench-label" style="color:rgba(246,243,238,.6)">Meta Internal Coding Bench</div>
+      <div class="bench-num" style="color:var(--yellow)">70.6<em style="color:var(--yellow)">%</em></div>
+      <div class="bench-bar" style="background:rgba(246,243,238,.12)"><i style="width:70.6%;background:var(--yellow)"></i></div>
+      <div class="bench-vs" style="color:rgba(246,243,238,.6)">Meta社内ベンチ — 非公開だが高水準</div>
+      <p style="font-size:12.5px;color:rgba(246,243,238,.6);margin-top:10px;line-height:1.6">Metaが重視する内部指標。実プロダクトでの有用性を反映。</p>
+    </div>
+  </div>
+  <div style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:right">Source: Artificial Analysis / Meta Research · 2026.08 · Daytona sandbox, agent harness</div>
+</section>
+
+<section class="section reveal">
+  <div class="section-head">
+    <div>
+      <div class="kicker">Who is it for?</div>
+      <h2>誰のための<br><em>Contributor</em>か。</h2>
+    </div>
+    <p>万人のためのモデルではない。でも、ハマる人には、これ以上ない相棒になる。</p>
+  </div>
+
+  <div class="personas">
+    <div class="persona">
+      <h3>🛠️ 個人開発者</h3>
+      <p>試作を100回回したい。でも請求が怖くて手が止まる。そんなあなたに。</p>
+      <ul>
+        <li><i>✓</i> 月10Mトークンでも $1〜2。気軽に壁打ちできる</li>
+        <li><i>✓</i> プロトタイプのログが、そのまま未来の学習データに</li>
+        <li><i>✓</i> OSSなら、貢献はむしろ誇り</li>
+      </ul>
+    </div>
+    <div class="persona">
+      <h3>🎓 学習者 / 研究者</h3>
+      <p>エージェント的コーディングを、コストを気にせず体に染み込ませたい。</p>
+      <ul>
+        <li><i>✓</i> 1Mコンテキストで論文もリポジトリも丸飲み</li>
+        <li><i>✓</i> 並列ツール呼び出しで、実務フローを再現</li>
+        <li><i>✓</i> レート制限は、むしろ丁寧に学ぶリズムになる</li>
+      </ul>
+    </div>
+    <div class="persona">
+      <h3>🏢 本番は Standard で</h3>
+      <p>Contributorで学び、Standardで稼ぐ。二刀流が正解。</p>
+      <ul>
+        <li><i>✓</i> 顧客データ・秘密鍵は Standard へ</li>
+        <li><i>✓</i> プロトタイプは Contributor で爆速に</li>
+        <li><i>✓</i> コスト94%削減で、浮いた分を人間に投資</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="story">
+    <div class="story-visual">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;opacity:.5">MUSE SPARK 1.2 — TRACE</div>
+      <div class="code-lines" style="margin-top:16px">
+        <div><b>user</b> › リポジトリ全体を読んで、<br>&nbsp;&nbsp;非同期エージェントの競合を直して</div>
+        <div style="margin-top:12px;opacity:.7"><em>› thinking</em> 1,048,576 tokens<br>&nbsp;&nbsp;planning / goal conditioning<br>&nbsp;&nbsp;context compaction...</div>
+        <div style="margin-top:12px"><b>model</b> › 3つの並列ツール呼び出しで<br>&nbsp;&nbsp;修正 → テスト → 検証</div>
+        <div style="margin-top:12px"><b>tool</b> › daytona sandbox: passed ✓</div>
+        <div style="margin-top:12px"><b>model</b> › 完了。差分は3ファイル、<br>&nbsp;&nbsp;テスト 82.9% 通過</div>
+        <div style="margin-top:18px;padding:10px;border:1px solid rgba(246,243,238,.15);background:rgba(246,243,238,.06)">
+          <div style="font-size:10px;letter-spacing:.1em;opacity:.6">CONTRIBUTOR TRACE SAVED</div>
+          <div style="font-size:11px;margin-top:4px">この対話は、次のモデルを賢くする。</div>
+        </div>
+      </div>
+      <div style="margin-top:auto;display:flex;gap:8px;position:relative">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 10px;background:var(--yellow);color:var(--ink)">PARALLEL TOOLS</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 10px;border:1px solid rgba(246,243,238,.2)">1M CONTEXT</span>
+      </div>
+    </div>
+    <div class="story-text">
+      <h3>コードを書くのは、<br><em>もう一人じゃない。</em></h3>
+      <p>
+        Muse Spark 1.2は、チャットボットではない。<br>
+        計画を立て、ゴールを保持し、コンテキストを圧縮しながら、長いタスクを最後までやり切るエージェントだ。
+      </p>
+      <p>
+        そしてContributorであることは、少しだけ未来に手を貸すこと。<br>
+        あなたの試行錯誤、失敗、リトライ——そのすべてが、次の誰かの「一発目の成功率」を上げる。
+      </p>
+      <div class="quote">
+        「安いから使う」から、「育てるために使う」へ。<br>
+        その視点の切り替えが、あなたをただのユーザーから、共犯者（Contributor）にする。
+      </div>
+      <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 12px;border:1px solid var(--line);background:white">Release: 2026.08.05</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 12px;border:1px solid var(--line);background:white">Meta Model API</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 12px;background:var(--ink);color:var(--bg)">Contributor = 参加する価格</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta" id="join">
+  <div>
+    <h2>さあ、<br><em>預けてみよう。</em><br>未来に、コードを。</h2>
+    <p>
+      Muse Spark 1.2 Contributorは、今日から使える。<br>
+      Meta Model APIで <code style="background:rgba(246,243,238,.12);padding:2px 6px;font-family:'JetBrains Mono',monospace;font-size:13px">muse-spark-1.2-contributor</code> を指定するだけ。<br>
+      あなたの次のプロトタイプが、来年のモデルを創る。
+    </p>
+  </div>
+  <div class="cta-actions">
+    <a class="btn-primary" href="https://developer.meta.com/ai/models/muse-spark/" target="_blank">
+      <span>Meta AIで Contributor を始める</span>
+      <span>↗</span>
+    </a>
+    <a class="btn-ghost" href="#pricing">
+      <span>料金をもう一度見る</span>
+      <span>→</span>
+    </a>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(246,243,238,.5);line-height:1.6">
+      Tip: 機密プロジェクトは Standard ($1.25/$4.25) を。使い分けが、賢いContributorの作法です。
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>© 2026 Muse Spark 1.2 Contributor — Unofficial tribute page. Built for humans, not for slop.</div>
+  <div style="display:flex;gap:16px">
+    <a href="https://research.meta.ai/blog/introducing-muse-code-and-muse-spark-1-2" target="_blank">Meta Research ↗</a>
+    <a href="https://developer.meta.com/ai/models/muse-spark/" target="_blank">Official Docs ↗</a>
+  </div>
+</footer>
+
+<script>
+// reveal on scroll
+const io = new IntersectionObserver(es=>{
+  es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in') })
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// magnetic card
+const card = document.getElementById('idCard');
+const wrap = document.querySelector('.card-wrap');
+if(card && wrap){
+  wrap.addEventListener('mousemove', e=>{
+    const r = wrap.getBoundingClientRect();
+    const x = (e.clientX - r.left - r.width/2)/18;
+    const y = (e.clientY - r.top - r.height/2)/18;
+    card.style.transform = `rotate(-1deg) translate(${x}px, ${y}px) rotateX(${-y}deg) rotateY(${x}deg)`;
+  });
+  wrap.addEventListener('mouseleave', ()=> card.style.transform='rotate(-1deg)');
+}
+
+// calculator
+const inR = document.getElementById('inputRange');
+const outR = document.getElementById('outputRange');
+const inV = document.getElementById('inputVal');
+const outV = document.getElementById('outputVal');
+const sP = document.getElementById('standardPrice');
+const cP = document.getElementById('contribPrice');
+const saving = document.getElementById('saving');
+function updateCalc(){
+  const inp = parseInt(inR.value);
+  const out = parseInt(outR.value);
+  inV.textContent = inp + 'M';
+  outV.textContent = out + 'M';
+  const std = inp*1.25 + out*4.25;
+  const contrib = inp*0.10 + out*0.20;
+  const save = std - contrib;
+  const pct = Math.round(save/std*100);
+  sP.textContent = '$' + std.toFixed(2);
+  cP.textContent = '$' + contrib.toFixed(2);
+  saving.textContent = '▲ $' + save.toFixed(2) + ' 節約 (' + pct + '% off)';
+}
+inR.addEventListener('input', updateCalc);
+outR.addEventListener('input', updateCalc);
+updateCalc();
+
+// smooth magnetic for buttons
+document.querySelectorAll('.magnetic').forEach(el=>{
+  el.addEventListener('mousemove', e=>{
+    const r=el.getBoundingClientRect();
+    el.style.transform=`translate(${(e.clientX-r.left-r.width/2)/8}px, ${(e.clientY-r.top-r.height/2)/8}px)`;
+  });
+  el.addEventListener('mouseleave', ()=> el.style.transform='');
+});
+</script>
+</body>
+</html>
