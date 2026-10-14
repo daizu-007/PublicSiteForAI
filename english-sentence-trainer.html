@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>英文暗記トレーナー</title>
+<style>
+:root{--green:#58cc02;--green-d:#46a302;--red:#ff4b4b;--gray:#e5e5e5;--text:#3c3c3c;--blue:#1cb0f6}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;color:var(--text);background:#fff;min-height:100vh;padding-bottom:120px}
+header{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:2px solid var(--gray)}
+h1{font-size:18px;margin:0;color:var(--green)}
+h2{margin:8px 0}
+main{max-width:720px;margin:0 auto;padding:20px}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:10px 18px;font-weight:700;background:var(--gray);color:var(--text);box-shadow:0 4px 0 #cfcfcf}
+button:active{transform:translateY(3px);box-shadow:none}
+button.primary{background:var(--green);color:#fff;box-shadow:0 4px 0 var(--green-d)}
+button:disabled{opacity:.4;cursor:default}
+textarea{width:100%;height:220px;font:14px/1.6 Consolas,monospace;padding:10px;border:2px solid var(--gray);border-radius:12px;margin-top:10px;resize:vertical}
+input[type=file]{margin-top:6px}
+.hint{color:#777;font-size:14px}
+.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0}
+.progress{flex:1;height:14px;background:var(--gray);border-radius:99px;overflow:hidden;min-width:120px}
+.progress>div{height:100%;background:var(--green);width:0;transition:width .3s}
+#stat{font-size:14px;color:#777;white-space:nowrap}
+.prompt{margin:24px 0 12px;font-size:22px;font-weight:700}
+.answer{min-height:90px;border-bottom:2px solid var(--gray);display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;padding:8px 0}
+.buffer{min-height:22px;color:#777;font-size:14px;margin-top:10px}
+.bank{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:24px;min-height:70px}
+.bank.shake,.buffer.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.chip{padding:10px 14px;border:2px solid var(--gray);border-bottom-width:4px;border-radius:12px;background:#fff;font-size:18px;font-weight:600;color:var(--text);box-shadow:none}
+button.chip:active{transform:translateY(2px)}
+.chip.hl{border-color:var(--blue);background:#ddf4ff}
+.chip.used{visibility:hidden}
+#bottom{position:fixed;left:0;right:0;bottom:0;border-top:2px solid var(--gray);background:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:90px}
+#msg{flex:1;font-weight:700;font-size:16px}
+#msg.ok{color:var(--green-d)}
+#msg.ng{color:var(--red)}
+kbd{background:#f3f3f3;border:1px solid #ccc;border-radius:4px;padding:0 4px;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>英文暗記トレーナー</h1>
+</header>
+
+<main>
+  <!-- 教材設定 -->
+  <section id="setup">
+    <h2>教材</h2>
+    <p class="hint">1行1文、<code>日本語訳,English sentence</code> の形式で書いてください（区切りは最初の半角カンマ。UTF-8で保存）。</p>
+    <input type="file" id="file" accept=".txt,text/plain">
+    <textarea id="txt" spellcheck="false"></textarea>
+    <div class="row">
+      <button id="apply">反映</button>
+      <button id="sample">サンプルを入れる</button>
+      <span id="count" class="hint"></span>
+    </div>
+    <label><input type="checkbox" id="shuffle"> 出題順をシャッフル</label><br>
+    <label><input type="checkbox" id="retry" checked> 間違えた文を最後にもう一度出題</label><br>
+    <label><input type="checkbox" id="speak" checked> 完成時に英文を読み上げ</label>
+    <div class="row"><button class="primary" id="start">学習開始</button></div>
+  </section>
+
+  <!-- 出題 -->
+  <section id="quiz" hidden>
+    <div class="row">
+      <button id="back">← 教材</button>
+      <div class="progress"><div id="bar"></div></div>
+      <span id="stat"></span>
+    </div>
+    <p class="hint">日本語訳を見て、単語を正しい順番で選んでください。</p>
+    <div class="prompt" id="ja"></div>
+    <div class="answer" id="answer"></div>
+    <div class="buffer" id="buf"></div>
+    <div class="bank" id="bank"></div>
+  </section>
+
+  <!-- 結果 -->
+  <section id="result" hidden>
+    <h2>完了！</h2>
+    <p id="res"></p>
+    <div class="row">
+      <button class="primary" id="again">もう一度</button>
+      <button id="toSetup">教材に戻る</button>
+    </div>
+  </section>
+</main>
+
+<div id="bottom" hidden>
+  <div id="msg"></div>
+  <button id="replay" hidden>🔊</button>
+  <button class="primary" id="next" hidden>次へ (Enter)</button>
+</div>
+
+<script>
+const KEY = 'eigo-trainer-txt';
+const SAMPLE = `おはようございます,Good morning, everyone.
+私は毎朝コーヒーを飲みます,I drink coffee every morning.
+彼女は昨日図書館で本を読んでいました,She was reading a book in the library yesterday.
+もし雨が降ったら、家にいましょう,If it rains, let's stay at home.`;
+
+let sentences = [];   // {ja, en, tokens}
+let queue = [];       // 出題する sentences のインデックス列
+let qpos = 0;
+let cur = null;       // 現在の問題
+let retried = new Set();
+let totalMistakes = 0;
+let flashKind = '';
+let flashTimer = null;
+
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+};
+const shuffle = a => {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+/* ---------- 教材の読み込み ---------- */
+function parseTxt(text) {
+  const out = [];
+  let bad = 0;
+  for (const raw of text.replace(/^\uFEFF/, '').split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    let i = line.indexOf(',');
+    if (i < 0) i = line.indexOf('，');
+    if (i < 0) { bad++; continue; }
+    const ja = line.slice(0, i).trim();
+    const en = line.slice(i + 1).trim();
+    if (!ja || !en) { bad++; continue; }
+    out.push({ ja, en, tokens: en.split(/\s+/).filter(Boolean) });
+  }
+  return { out, bad };
+}
+
+function applyTxt(text, save = true) {
+  const { out, bad } = parseTxt(text);
+  sentences = out;
+  if (save) localStorage.setItem(KEY, text);
+  $('count').textContent = `有効 ${out.length} 文` + (bad ? `（無効 ${bad} 行はスキップ）` : '');
+  return out.length;
+}
+
+/* ---------- 画面切替 ---------- */
+function show(name) {
+  $('setup').hidden = name !== 'setup';
+  $('quiz').hidden = name !== 'quiz';
+  $('result').hidden = name !== 'result';
+  $('bottom').hidden = name !== 'quiz';
+}
+
+function startSession() {
+  queue = sentences.map((_, i) => i);
+  if ($('shuffle').checked) shuffle(queue);
+  qpos = 0;
+  retried = new Set();
+  totalMistakes = 0;
+  show('quiz');
+  loadCurrent();
+}
+
+function loadCurrent() {
+  if (qpos >= queue.length) return showResult();
+  const s = sentences[queue[qpos]];
+  const pool = s.tokens.map((text, id) => ({ id, text, used: false }));
+  if (s.tokens.length > 1) while (pool.every((c, i) => c.id === i)) shuffle(pool);
+  cur = { s, chips: pool, placed: [], buf: '', mistakes: 0, done: false };
+  flashKind = '';
+  render();
+}
+
+function showResult() {
+  cur = null;
+  show('result');
+  $('res').textContent = `出題 ${queue.length} 回 / ミス合計 ${totalMistakes}`;
+}
+
+function next() {
+  if (!cur || !cur.done) return;
+  qpos++;
+  loadCurrent();
+}
+
+/* ---------- 回答ロジック ---------- */
+const expected = () => cur.s.tokens[cur.placed.length];
+const candidates = () => cur.chips.filter(c => !c.used && c.text.toLowerCase().startsWith(cur.buf));
+// 大文字・小文字だけが違う候補は、正しい方（期待される単語）を優先して選ぶ
+const chooseChip = cands => cands.find(c => c.text === expected()) || cands[0];
+
+function pick(chip) {
+  if (!cur || cur.done || chip.used) return;
+  cur.buf = '';
+  if (chip.text === expected()) {
+    chip.used = true;
+    cur.placed.push(chip);
+    if (cur.placed.length === cur.s.tokens.length) finish();
+  } else {
+    cur.mistakes++;
+    totalMistakes++;
+    flash('wrong');
+  }
+  render();
+}
+
+function finish() {
+  cur.done = true;
+  const idx = queue[qpos];
+  if (cur.mistakes > 0 && $('retry').checked && !retried.has(idx)) {
+    retried.add(idx);
+    queue.push(idx);
+  }
+  if ($('speak').checked) speak(cur.s.en);
+}
+
+function typeChar(c) {
+  if (!cur || cur.done) return;
+  cur.buf += c.toLowerCase();
+  const cands = candidates();
+  if (cands.length === 0) {
+    cur.buf = '';
+    flash('wrong');
+  } else if (new Set(cands.map(x => x.text.toLowerCase())).size === 1) {
+    pick(chooseChip(cands));      // 候補が実質1つ（大文字小文字の違いのみ）になったら自動選択
+    return;
+  }
+  render();
+}
+
+function flash(kind) {
+  flashKind = kind;
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => { flashKind = ''; render(); }, 500);
+}
+
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  speechSynthesis.speak(u);
+}
+
+/* ---------- 描画 ---------- */
+function render() {
+  if (!cur) return;
+  $('bar').style.width = (qpos / queue.length * 100) + '%';
+  $('stat').textContent = `${qpos + 1} / ${queue.length}　ミス ${totalMistakes}`;
+  $('ja').textContent = cur.s.ja;
+
+  $('answer').replaceChildren(...cur.placed.map(c => el('span', 'chip', c.text)));
+
+  const cands = cur.done ? [] : candidates();
+  const hl = new Set(cands.map(c => c.id));
+  const bank = $('bank');
+  bank.className = 'bank' + (flashKind === 'wrong' ? ' shake' : '');
+  bank.replaceChildren(...cur.chips.map(c => {
+    const b = el('button', 'chip' + (c.used ? ' used' : '') + (cur.buf && hl.has(c.id) ? ' hl' : ''), c.text);
+    b.disabled = c.used;
+    b.onclick = () => { b.blur(); pick(c); };
+    return b;
+  }));
+
+  const buf = $('buf');
+  buf.className = 'buffer' + (flashKind === 'wrong' ? ' shake' : '');
+  buf.innerHTML = '';
+  if (!cur.done) {
+    if (cur.buf) buf.append(`入力: ${cur.buf}　候補 ${cands.length}　`, el('kbd', '', 'Enter'), ' / ', el('kbd', '', 'Space'), ' で完全一致の単語を確定 / ', el('kbd', '', 'Backspace'), ' で削除');
+    else buf.append('キーボードで単語の先頭を入力（候補が1つになると自動選択）／ ', el('kbd', '', 'Backspace'), ' で直前の単語を取消');
+  }
+
+  const msg = $('msg');
+  msg.className = '';
+  if (cur.done) {
+    msg.className = 'ok';
+    msg.textContent = '正解！ ' + cur.s.en + (cur.mistakes ? `（ミス ${cur.mistakes}）` : '');
+  } else if (flashKind === 'wrong') {
+    msg.className = 'ng';
+    msg.textContent = 'ちがいます';
+  } else {
+    msg.textContent = '';
+  }
+  $('next').hidden = !cur.done;
+  $('replay').hidden = !cur.done;
+}
+
+/* ---------- キーボード ---------- */
+// 入力が未使用の候補と完全一致していれば、その単語を確定する（例: "a" と "abroad" がある場合）
+function confirmExact() {
+  if (!cur || cur.done || !cur.buf) return;
+  const exact = candidates().filter(c => c.text.toLowerCase() === cur.buf);
+  if (exact.length) pick(chooseChip(exact));
+}
+
+document.addEventListener('keydown', e => {
+  if (!cur || $('quiz').hidden) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (document.activeElement && document.activeElement.tagName === 'BUTTON') document.activeElement.blur();
+
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (cur.done) next();
+    else confirmExact();
+    return;
+  }
+  if (cur.done) return;
+
+  if (e.key === 'Backspace') {
+    e.preventDefault();
+    if (cur.buf) cur.buf = cur.buf.slice(0, -1);
+    else if (cur.placed.length) cur.placed.pop().used = false;
+    render();
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    cur.buf = '';
+    render();
+  } else if (e.key === ' ') {
+    e.preventDefault();
+    confirmExact();
+  } else if (e.key.length === 1 && !/\s/.test(e.key)) {
+    e.preventDefault();
+    typeChar(e.key);
+  }
+});
+
+/* ---------- ボタン ---------- */
+$('apply').onclick = () => {
+  if (applyTxt($('txt').value) === 0) alert('有効な文がありません。形式: 日本語訳,English sentence');
+};
+$('sample').onclick = () => {
+  $('txt').value = SAMPLE;
+  applyTxt(SAMPLE);
+};
+$('file').onchange = async () => {
+  const f = $('file').files[0];
+  if (!f) return;
+  $('txt').value = await f.text();
+  applyTxt($('txt').value);
+};
+$('start').onclick = () => {
+  if (applyTxt($('txt').value) === 0) {
+    alert('有効な文がありません。形式: 日本語訳,English sentence');
+    return;
+  }
+  startSession();
+};
+$('back').onclick = () => { cur = null; show('setup'); };
+$('next').onclick = next;
+$('replay').onclick = () => cur && speak(cur.s.en);
+$('again').onclick = startSession;
+$('toSetup').onclick = () => show('setup');
+
+/* ---------- 初期化 ---------- */
+(function init() {
+  const saved = localStorage.getItem(KEY);
+  if (saved) {
+    $('txt').value = saved;
+    applyTxt(saved, false);
+  } else {
+    $('txt').value = SAMPLE;
+    applyTxt(SAMPLE, false);
+  }
+  show('setup');
+})();
+</script>
+</body>
+</html>
