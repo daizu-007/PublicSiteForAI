@@ -9,5 +9,6 @@ AIで生成したwebサイトを公開するためのリポジトリ。
 - https://daizu-007.github.io/PublicSiteForAI/opus48
 - https://daizu-007.github.io/PublicSiteForAI/ox-alpha
 - https://daizu-007.github.io/PublicSiteForAI/muse-spark-contributor
+- https://daizu-007.github.io/PublicSiteForAI/minimax-m31-flash
 - https://daizu-007.github.io/PublicSiteForAI/Astra-Shooting-Star-Novel
 - https://daizu-007.github.io/PublicSiteForAI/english-sentence-trainer
