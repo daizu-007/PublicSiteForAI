@@ -13,6 +13,8 @@ AIで生成したwebサイトを公開するためのリポジトリ。
 - [MiniMax M3.1 Flash](https://daizu-007.github.io/PublicSiteForAI/minimax-m31-flash)
 - [DeepSeek v4.1 Flash 1017](https://daizu-007.github.io/PublicSiteForAI/deepseek-v41-flash)
 - [Mercury 3](https://daizu-007.github.io/PublicSiteForAI/mercury3)
+- [GPT-6.1 Solaris](https://daizu-007.github.io/PublicSiteForAI/gpt-61-sol)
+- [Claude Opus 5.5](https://daizu-007.github.io/PublicSiteForAI/claude-opus-55)
 
 ## 流れ星屋
 - [GPT-6 Astra](https://daizu-007.github.io/PublicSiteForAI/Astra-Shooting-Star-Novel)
