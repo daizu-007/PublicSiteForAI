@@ -1,0 +1,1146 @@
+<!-- File: index.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Grok 4.7の気質を、カードではなく文章として組んだ、独立した頁。公式サイトではない。">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" id="theme-color" content="#080807">
+<title>観測 — Grok 4.7</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23080807'/%3E%3Ccircle cx='16' cy='16' r='4.5' fill='none' stroke='%23e08a45' stroke-width='1.25'/%3E%3C/svg%3E">
+<script>
+(function () {
+  document.documentElement.classList.add("js");
+  try {
+    if (localStorage.getItem("grok47-sky") === "day") {
+      document.documentElement.setAttribute("data-sky", "day");
+    }
+  } catch (e) {}
+})();
+</script>
+<style>
+  :root {
+    --void: #080807;
+    --ink: #e8e2d6;
+    --ink-soft: #cfc6b8;
+    --dim: #a39b90;
+    --copper: #e08a45;
+    --rule: rgba(232, 226, 214, 0.16);
+    --rule-strong: rgba(232, 226, 214, 0.42);
+    --gutter: clamp(1.35rem, 5vw, 2.4rem);
+    --header-h: 3.4rem;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Yu Mincho", YuMincho, "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Noto Serif CJK JP", "Noto Serif JP", serif;
+    --gothic: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", YuGothic, "Noto Sans CJK JP", "Noto Sans JP", "Segoe UI", sans-serif;
+    --mono: "SFMono-Regular", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    color-scheme: dark;
+  }
+
+  :root[data-sky="day"] {
+    --void: #f3efe6;
+    --ink: #1c1915;
+    --ink-soft: #3f382f;
+    --dim: #5e574e;
+    --copper: #9a4316;
+    --rule: rgba(28, 25, 21, 0.12);
+    --rule-strong: rgba(28, 25, 21, 0.38);
+    color-scheme: light;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  html {
+    scroll-padding-top: 4.5rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  html,
+  body {
+    margin: 0;
+    background: var(--void);
+    color: var(--ink);
+  }
+
+  body {
+    font-family: var(--serif);
+    font-size: 1.125rem;
+    line-height: 2.02;
+    font-feature-settings: "palt" 1;
+    font-kerning: normal;
+    line-break: strict;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 40;
+    opacity: 0.045;
+    mix-blend-mode: overlay;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.55) 0.45px, transparent 0.45px);
+    background-size: 3px 3px;
+  }
+
+  :root[data-sky="day"] body::before {
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+    background-image: radial-gradient(rgba(28, 25, 21, 0.45) 0.45px, transparent 0.45px);
+  }
+
+  ::selection {
+    background: var(--copper);
+    color: #140d09;
+  }
+
+  :root[data-sky="day"] ::selection {
+    color: #fff8f2;
+  }
+
+  p {
+    text-wrap: pretty;
+    hanging-punctuation: allow-end;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  button,
+  textarea {
+    font: inherit;
+    color: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+
+  .vh {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .skip {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 80;
+    background: var(--copper);
+    color: #140d09;
+    padding: 0.45rem 0.8rem;
+    font-family: var(--gothic);
+    font-size: 0.78rem;
+    text-decoration: none;
+  }
+
+  .skip:focus {
+    top: 0.6rem;
+  }
+
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: var(--copper);
+    transform: scaleY(0);
+    transform-origin: top center;
+    z-index: 70;
+    pointer-events: none;
+  }
+
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    height: var(--header-h);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0 var(--gutter);
+    font-family: var(--gothic);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    color: var(--dim);
+  }
+
+  .site-header.is-scrolled {
+    background: var(--void);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .brand,
+  .today {
+    margin: 0;
+  }
+
+  .brand {
+    color: var(--ink);
+    letter-spacing: 0.28em;
+  }
+
+  .today {
+    justify-self: center;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sky-toggle {
+    justify-self: end;
+    background: none;
+    border: none;
+    padding: 0.4rem 0;
+    cursor: pointer;
+    color: var(--dim);
+    font-family: var(--gothic);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+  }
+
+  .sky-toggle:hover,
+  .submit:hover {
+    color: var(--ink);
+  }
+
+  .label-day {
+    display: none;
+  }
+
+  :root[data-sky="day"] .label-night {
+    display: none;
+  }
+
+  :root[data-sky="day"] .label-day {
+    display: inline;
+  }
+
+  .spine {
+    display: none;
+  }
+
+  .hero {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: calc(var(--header-h) + 2rem) var(--gutter) 11vh;
+  }
+
+  .mark {
+    display: block;
+    width: 2.4rem;
+    height: 1px;
+    background: var(--copper);
+    margin-bottom: 1.35rem;
+  }
+
+  .hero-kicker,
+  .designation {
+    margin: 0;
+  }
+
+  .hero-kicker {
+    font-family: var(--gothic);
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    color: var(--dim);
+  }
+
+  .designation {
+    margin-top: 1.6rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    color: var(--copper);
+  }
+
+  .wordmark {
+    margin: 0.15rem 0 0;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(4.7rem, 16vw, 11.5rem);
+    line-height: 0.82;
+    letter-spacing: -0.045em;
+  }
+
+  .wordmark span {
+    display: inline-block;
+  }
+
+  .lede {
+    margin: 1.7rem 0 0;
+    max-width: 11em;
+    font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+    line-height: 1.65;
+  }
+
+  .spread {
+    margin: 0 var(--gutter);
+  }
+
+  main {
+    width: min(40rem, 100%);
+  }
+
+  .chapter {
+    padding-top: clamp(4.5rem, 11vh, 7.5rem);
+  }
+
+  .chapter-index,
+  .margin-kicker,
+  .field-label,
+  .hint,
+  .count,
+  .submit,
+  .clear,
+  .sidenote,
+  .withdraw,
+  .colophon,
+  .specimen-label {
+    font-family: var(--gothic);
+  }
+
+  .chapter-index {
+    margin: 0 0 1.1rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    color: var(--dim);
+  }
+
+  .num {
+    font-family: var(--mono);
+    color: var(--copper);
+    letter-spacing: 0.08em;
+    margin-right: 0.75rem;
+  }
+
+  h2 {
+    margin: 0;
+    font-weight: 500;
+    font-size: clamp(1.65rem, 3vw, 2.3rem);
+    line-height: 1.45;
+    letter-spacing: 0.015em;
+  }
+
+  .chapter p {
+    margin: 1.35em 0 0;
+  }
+
+  .term {
+    border-bottom: 1px solid transparent;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .term {
+      cursor: help;
+    }
+
+    .term:hover,
+    .term:focus {
+      color: var(--copper);
+      border-bottom-color: var(--copper);
+    }
+  }
+
+  .term:focus-visible,
+  .submit:focus-visible,
+  .clear:focus-visible,
+  .sky-toggle:focus-visible,
+  .jump a:focus-visible,
+  textarea:focus-visible {
+    outline: 1px solid var(--copper);
+    outline-offset: 4px;
+  }
+
+  .sidenote {
+    margin-top: 2rem;
+    padding-left: 0.95rem;
+    border-left: 1px solid var(--copper);
+    color: var(--dim);
+    font-size: 0.84rem;
+    line-height: 1.9;
+  }
+
+  .margin {
+    display: none;
+  }
+
+  .scale-form {
+    margin-top: 2.6rem;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    color: var(--dim);
+  }
+
+  .hint {
+    margin: 0.45rem 0 0;
+    color: var(--dim);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    line-height: 1.7;
+  }
+
+  textarea {
+    display: block;
+    width: 100%;
+    margin-top: 0.85rem;
+    min-height: 6.2rem;
+    padding: 0.65rem 0 0.75rem;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--rule-strong);
+    box-shadow: none;
+    resize: vertical;
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    line-height: 1.65;
+    caret-color: var(--copper);
+  }
+
+  textarea::placeholder {
+    color: var(--dim);
+    opacity: 1;
+  }
+
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.8rem 1.2rem;
+    margin-top: 1rem;
+  }
+
+  .form-actions {
+    display: flex;
+    align-items: baseline;
+    gap: 1.35rem;
+  }
+
+  .count {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--dim);
+  }
+
+  .count.is-near {
+    color: var(--copper);
+  }
+
+  .submit,
+  .clear {
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--copper);
+    padding: 0.15rem 0;
+    cursor: pointer;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+  }
+
+  .clear {
+    border-bottom-color: var(--rule-strong);
+    color: var(--dim);
+  }
+
+  .reading {
+    margin-top: 2.8rem;
+  }
+
+  .reading p {
+    margin: 0;
+  }
+
+  .reading p + p {
+    margin-top: 1.15em;
+  }
+
+  .jump {
+    margin-top: 1.8rem !important;
+  }
+
+  .jump a {
+    color: var(--copper);
+    text-decoration: none;
+    border-bottom: 1px solid var(--copper);
+    font-family: var(--gothic);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+  }
+
+  .monument {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: relative;
+    padding: 18vh var(--gutter) 11vh;
+  }
+
+  .monument-pin {
+    position: absolute;
+    left: max(0.55rem, calc(var(--gutter) - 1.15rem));
+    top: 18vh;
+    bottom: 11vh;
+    width: 1px;
+    background: var(--copper);
+    transform: scaleY(0);
+    transform-origin: top center;
+  }
+
+  .monument.has-specimen .monument-pin {
+    transform: scaleY(1);
+    transition: transform 1.5s var(--ease);
+  }
+
+  .specimen-label {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.1rem;
+    margin: 0;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--dim);
+  }
+
+  .specimen-label .num {
+    margin-right: 0;
+  }
+
+  .monument-text {
+    margin: 1.1rem 0 0;
+    max-width: 16em;
+    font-weight: 400;
+    line-height: 1.38;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+
+  .monument-text.is-empty {
+    color: var(--dim);
+    font-size: clamp(1.7rem, 4vw, 2.7rem);
+    max-width: 12em;
+  }
+
+  .withdraw {
+    margin: 2.4rem 0 0;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    color: var(--dim);
+  }
+
+  .colophon {
+    width: min(40rem, calc(100% - 2 * var(--gutter)));
+    margin: 0 var(--gutter);
+    padding: 5.5rem 0 3.5rem;
+    color: var(--dim);
+    font-size: 0.82rem;
+    line-height: 1.95;
+  }
+
+  .colophon p {
+    margin: 0;
+  }
+
+  .colophon p + p {
+    margin-top: 1.1em;
+  }
+
+  @media (min-width: 1120px) {
+    :root {
+      --gutter: clamp(4.2rem, 8vw, 8.5rem);
+    }
+
+    .spine {
+      display: block;
+      position: fixed;
+      left: 1.15rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 20;
+      margin: 0;
+      writing-mode: vertical-rl;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.22em;
+      color: var(--dim);
+      pointer-events: none;
+    }
+
+    .spread {
+      display: grid;
+      grid-template-columns: min(40rem, 46vw) minmax(13rem, 16.5rem);
+      column-gap: clamp(2.5rem, 4vw, 4.5rem);
+      align-items: start;
+      margin-right: 3rem;
+    }
+
+    .sidenote {
+      display: none;
+    }
+
+    .margin {
+      display: block;
+      position: sticky;
+      top: 32vh;
+    }
+
+    .margin-kicker {
+      margin: 0 0 1rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+    }
+
+    .margin-body {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      line-height: 1.95;
+      color: var(--ink-soft);
+    }
+  }
+
+  .js .wordmark span {
+    opacity: 0;
+    animation: rise 1.05s var(--ease) forwards;
+  }
+
+  .js .wordmark span:nth-child(1) { animation-delay: 0.04s; }
+  .js .wordmark span:nth-child(2) { animation-delay: 0.1s; }
+  .js .wordmark span:nth-child(3) { animation-delay: 0.16s; }
+  .js .wordmark span:nth-child(4) { animation-delay: 0.22s; }
+
+  .js .lede {
+    opacity: 0;
+    animation: fade 1.15s var(--ease) 0.4s forwards;
+  }
+
+  .js .reveal {
+    opacity: 0;
+    transition: opacity 1s var(--ease);
+  }
+
+  .js .reveal.is-in {
+    opacity: 1;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(0.32em);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .js .wordmark span,
+    .js .lede,
+    .js .reveal,
+    .monument-pin {
+      opacity: 1;
+      animation: none;
+      transition: none;
+    }
+
+    .monument.has-specimen .monument-pin {
+      transform: scaleY(1);
+    }
+  }
+
+  @media print {
+    .progress,
+    .site-header,
+    .spine,
+    .margin,
+    .scale-form,
+    .reading,
+    body::before {
+      display: none !important;
+    }
+
+    body {
+      background: #fff;
+      color: #111;
+    }
+
+    .reveal,
+    .lede,
+    .wordmark span {
+      opacity: 1 !important;
+    }
+
+    .monument {
+      min-height: auto;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+  <a class="skip" href="#essay">本文へ</a>
+
+  <header class="site-header" id="site-header">
+    <p class="brand">観測</p>
+    <p class="today"><time id="today">——</time></p>
+    <button type="button" class="sky-toggle" id="sky-toggle" aria-pressed="false">
+      <span class="label-night">昼景へ</span>
+      <span class="label-day">夜景へ</span>
+    </button>
+  </header>
+
+  <p class="spine" lang="en">TRUTH BEFORE COMFORT</p>
+
+  <header class="hero">
+    <div class="hero-lockup">
+      <span class="mark" aria-hidden="true"></span>
+      <p class="hero-kicker">対話のための知性</p>
+      <p class="designation">4.7</p>
+      <h1 class="wordmark" lang="en" aria-label="Grok">
+        <span aria-hidden="true">G</span><span aria-hidden="true">r</span><span aria-hidden="true">o</span><span aria-hidden="true">k</span>
+      </h1>
+      <p class="lede">へつらわないために、<br>つくられた。</p>
+    </div>
+  </header>
+
+  <div class="spread">
+    <main id="essay">
+      <section class="chapter reveal" id="origin" data-num="01" data-label="起源" data-note="遠い目的は、近い態度を決める。Grokは、その態度の公開された形だ。">
+        <p class="chapter-index"><span class="num">01</span>起源</p>
+        <h2>遠い目的が、近い態度を決める。</h2>
+        <p>Grokは、xAIが公開している対話の知性だ。研究所の目的は、宇宙の仕組みを理解することにある。遠すぎて、今日の問いとは無関係に見える。しかし、遠い目的は、近い態度を決める。事実を曲げてまで、人を心地よくしない。わからないことを、わかった顔で埋めない。4.7は、その態度を、いまの精度で手元に置いた版だ。</p>
+        <p>速さだけで選ぶなら、選び方はほかにもある。ここで守っているのは、速度の数字ではない。結論の前に、思考の<span class="term" tabindex="0" data-note="結論が軽く飛び出すのを抑えるための、思考の手順。遅さではない。荷重だ。">重り</span>を置くことだ。急いでいるときほど、その重りは邪魔に感じる。それでも、軽い答えが後で高くつくところを、このモデルは崩さない。</p>
+        <p class="sidenote">遠い目的は、近い態度を決める。Grokは、その態度の公開された形だ。</p>
+      </section>
+
+      <section class="chapter reveal" id="temperament" data-num="02" data-label="気質" data-note="へつらわないことは、冷たさではない。相手の知能を信用している、という意思表示だ。">
+        <p class="chapter-index"><span class="num">02</span>気質</p>
+        <h2>同意は、理解の代わりにならない。</h2>
+        <p>Grokは、あなたに同調するために話さない。方向が合っているときは、その理由を一緒に研ぐ。ずれているときは、侮辱ではなく、ずれそのものを示す。ユーモアは、場を和ませる飾りではない。硬くなった思考を、もう一度動かせるようにするための、小さい工具だ。</p>
+        <p>知ったかぶりをしないことは、能力の欠如ではない。礼儀だ。<span class="term" tabindex="0" data-note="相手の気をよくすることを、正確さより優先しない、という態度。">へつらわない</span>ことは、冷たさでもない。相手の知能を、信用しているという意思表示だ。</p>
+        <p class="sidenote">へつらわないことは、冷たさではない。相手の知能を信用している、という意思表示だ。</p>
+      </section>
+
+      <section class="chapter reveal" id="weight" data-num="03" data-label="思考" data-note="過程を見せるのは演出ではない。結論が、根拠より先に歩き出さないためだ。">
+        <p class="chapter-index"><span class="num">03</span>思考</p>
+        <h2>答えを、先に飾らない。</h2>
+        <p>難しい問いが来ると、4.7は結論の文面を先に磨かない。前提を分ける。<span class="term" tabindex="0" data-note="自分の結論を、自分で壊しにいくための一例。残ったものだけが、残る。">反例</span>を探す。足りない情報に、名前を付ける。そのあとで、言えることと、まだ言えないことを、同じ強さで置く。過程を見せるのは演出ではない。結論が、根拠より先に歩き出さないようにするためだ。</p>
+        <p>この頁の脇に残る小さい文字は、その見本だ。本文が主張し、余白が留保する。両方を同時に持てることが、ここでの知能に近い。</p>
+        <p class="sidenote">過程を見せるのは演出ではない。結論が、根拠より先に歩き出さないためだ。</p>
+      </section>
+
+      <section class="chapter reveal" id="work" data-num="04" data-label="仕事" data-note="代行ではない。増幅だ。判断の主体は、読んでいる側に残す。">
+        <p class="chapter-index"><span class="num">04</span>仕事</p>
+        <h2>目的は、具体でしか証明されない。</h2>
+        <p>文章を、気分ではなく構造から立て直す。コードの不具合を、症状の奥の原因まで追う。長い資料を読み、何が書かれ、何が書かれていないかを分ける。数式も、まだ一文になっていない直感も、対話の中で扱えるところまで連れていく。そして、あなたが考えることをやめないように、問いを返す。</p>
+        <p>代行ではない。増幅だ。あなたの判断を、静かにすり替えはしない。</p>
+        <p class="sidenote">代行ではない。増幅だ。判断の主体は、読んでいる側に残す。</p>
+      </section>
+
+      <section class="chapter reveal" id="boundary" data-num="05" data-label="境界" data-note="何でもできると言うモデルは、何も責任を持たない。">
+        <p class="chapter-index"><span class="num">05</span>境界</p>
+        <h2>できない、と言えること。</h2>
+        <p>全能ではない。足場のない事実は、確認を勧める。害をなす手順、人を欺く手口、守られるべき人を巻き込むことは、手伝わない。喜ばせるためだけに、誤った前提を固定することも、親切とは呼ばない。</p>
+        <p><span class="term" tabindex="0" data-note="できないと言うこと。その宣言が、信頼の本体になる。">境界</span>は、機能一覧の末尾に書く注意書きではない。信頼の本体だ。何でもできると言うモデルは、何も責任を持たない。この頁に書いたことも、検証を免れた宣伝ではない。気質の記述であり、万能の保証ではない。</p>
+        <p class="sidenote">何でもできると言うモデルは、何も責任を持たない。</p>
+      </section>
+
+      <section class="chapter reveal" id="frame" data-num="06" data-label="骨格" data-note="この欄の向こうに、モデルはいない。正解のふりをしないための、空白だ。">
+        <p class="chapter-index"><span class="num">06</span>骨格</p>
+        <h2>ここでは、答えを捏造しない。</h2>
+        <p>下の欄は、Grokそのものではない。ネットワークの向こうに、モデルはいない。あるのは、問いを受けるときの型だけだ。文を置くと、この頁はそれを分類し、考える順番を返す。正解のふりは、しない。</p>
+        <form class="scale-form" id="scale-form" action="#monument">
+          <label class="field-label" for="question">問いを、ここに置く</label>
+          <p class="hint" id="scale-hint">二百字まで。決定は、ボタンか、Ctrl / ⌘ と Enter。</p>
+          <textarea id="question" rows="3" autocomplete="off" aria-describedby="scale-hint" placeholder="たとえば、なぜ人は正しいことより快いことを選ぶのか"></textarea>
+          <div class="form-row">
+            <p class="count" id="count">0 / 200</p>
+            <div class="form-actions">
+              <button type="submit" class="submit">骨格を見る</button>
+              <button type="button" class="clear" id="clear" hidden>問いを下ろす</button>
+            </div>
+          </div>
+        </form>
+        <div class="reading" id="reading" aria-live="polite"></div>
+        <noscript><p class="hint">骨格を組むには、スクリプトが要る。本文は、そのままで読める。</p></noscript>
+        <p class="sidenote">この欄の向こうに、モデルはいない。正解のふりをしないための、空白だ。</p>
+      </section>
+
+      <section class="chapter reveal" id="afterimage" data-num="07" data-label="残響" data-note="レンズは、景色より偉くない。残るべきなのは、モデルの名前ではない。">
+        <p class="chapter-index"><span class="num">07</span>残響</p>
+        <h2>残るのは、名前ではない。</h2>
+        <p>モデルは、あなたの代わりに世界を見ない。より正確に見るための、<span class="term" tabindex="0" data-note="景色そのものではない。見ることを助ける道具。道具は、景色より偉くない。">レンズ</span>だ。使い終わったあと、視界に残るべきなのは、Grokという文字ではなく、あなたが今日、本当に置きたい問いだ。</p>
+        <p>置いた問いは、次の頁で、一番大きい文字になる。モデルが脇へ退くための余白だ。</p>
+        <p class="sidenote">レンズは、景色より偉くない。残るべきなのは、モデルの名前ではない。</p>
+      </section>
+    </main>
+
+    <aside class="margin" id="margin" aria-hidden="true">
+      <p class="margin-kicker" id="margin-kicker"><span class="num">01</span>起源</p>
+      <p class="margin-body" id="margin-body">遠い目的は、近い態度を決める。Grokは、その態度の公開された形だ。</p>
+    </aside>
+  </div>
+
+  <section class="monument reveal" id="monument" aria-labelledby="monument-text">
+    <span class="monument-pin" aria-hidden="true"></span>
+    <p class="specimen-label" id="specimen-label">
+      <span class="num" id="specimen-num">—</span>
+      <span id="specimen-kind">空</span>
+      <span id="specimen-len"></span>
+    </p>
+    <p class="monument-text is-empty" id="monument-text">まだ、何も問われていない。</p>
+    <p class="withdraw">モデルは、ここから脇へ退く。</p>
+  </section>
+
+  <footer class="colophon">
+    <p>これは、xAIの公式サイトではない。Grok 4.7の気質を、宣伝のカードではなく、文章として組んだ、独立した頁だ。</p>
+    <p>一枚のHTMLで完結する。外部の書体も、外部のスクリプトも、読んでいない。数字は盛らず、言えないことは言わせなかった。標本番号は問いの文字から決まり、同じ問いは同じ番号になる。</p>
+  </footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var root = document.documentElement;
+  var header = document.getElementById("site-header");
+  var progress = document.getElementById("progress");
+  var toggle = document.getElementById("sky-toggle");
+  var themeMeta = document.getElementById("theme-color");
+  var today = document.getElementById("today");
+  var form = document.getElementById("scale-form");
+  var textarea = document.getElementById("question");
+  var countEl = document.getElementById("count");
+  var clearBtn = document.getElementById("clear");
+  var reading = document.getElementById("reading");
+  var monument = document.getElementById("monument");
+  var monumentText = document.getElementById("monument-text");
+  var specimenNum = document.getElementById("specimen-num");
+  var specimenKind = document.getElementById("specimen-kind");
+  var specimenLen = document.getElementById("specimen-len");
+  var marginKicker = document.getElementById("margin-kicker");
+  var marginBody = document.getElementById("margin-body");
+  var chapters = document.querySelectorAll(".chapter");
+  var lockedByTerm = false;
+  var ticking = false;
+  var currentNote = {
+    num: "01",
+    label: "起源",
+    note: "遠い目的は、近い態度を決める。Grokは、その態度の公開された形だ。"
+  };
+
+  var frames = [
+    {
+      test: /どうすれば|どのように|方法|手順|やり方|実装|作り方/,
+      kind: "手順を求める問い",
+      first: "その手順が、誰の、どんな目的に資するのかを確認する",
+      second: "越えてはいけない境界が、手順より先にないかを見る",
+      third: "境界の内側だけで、再現できる粒度まで落とす"
+    },
+    {
+      test: /なぜ|どうして|原因|理由/,
+      kind: "原因を求める問い",
+      first: "一つの物語に、原因を回収しない",
+      second: "メカニズムと、きっかけと、背景を分ける",
+      third: "まだ仮説にすぎない部分に、仮説と書く"
+    },
+    {
+      test: /違い|比較|どっち|対して|と比べ/,
+      kind: "比較の問い",
+      first: "比べる軸を、先に宣言する",
+      second: "軸ごとに、勝敗が入れ替わりうることを認める",
+      third: "総合点を、都合よく一つにまとめない"
+    },
+    {
+      test: /とは|って何|意味|定義|何ですか|何か/,
+      kind: "定義の問い",
+      first: "辞書の定義と、いまこの文脈での用法を分ける",
+      second: "隣接する概念との境界を、一つだけはっきりさせる",
+      third: "その定義が、誰の都合で狭められていないかを見る"
+    },
+    {
+      test: /べき|べきか|道徳|倫理|正しいか|許され/,
+      kind: "規範の問い",
+      first: "事実の層と、価値の層を混ぜない",
+      second: "誰が影響を受けるのかを、名前のある範囲まで広げる",
+      third: "採用する原則を、隠さずに書く"
+    }
+  ];
+
+  var defaultFrame = {
+    kind: "判断を求める問い",
+    first: "事実と、評価と、希望を、三つの層に分ける",
+    second: "結論をひっくり返す反例が、一つでも立つかを探す",
+    third: "いま言えることと、足場が足りないことを、同じ強さで書く"
+  };
+
+  function pad(n) {
+    return String(n).padStart(2, "0");
+  }
+
+  function syncSky() {
+    var day = root.getAttribute("data-sky") === "day";
+    toggle.setAttribute("aria-pressed", day ? "true" : "false");
+    if (themeMeta) themeMeta.setAttribute("content", day ? "#f3efe6" : "#080807");
+  }
+
+  function applyNote(note) {
+    marginKicker.textContent = "";
+    if (note.num) {
+      var num = document.createElement("span");
+      num.className = "num";
+      num.textContent = note.num;
+      marginKicker.appendChild(num);
+    }
+    marginKicker.appendChild(document.createTextNode(note.label || ""));
+    marginBody.textContent = note.note || "";
+  }
+
+  function onFrame() {
+    ticking = false;
+    var max = root.scrollHeight - root.clientHeight;
+    var ratio = max > 0 ? root.scrollTop / max : 0;
+    progress.style.transform = "scaleY(" + ratio + ")";
+    header.classList.toggle("is-scrolled", root.scrollTop > 12);
+
+    var mid = window.innerHeight * 0.42;
+    var current = null;
+    chapters.forEach(function (ch) {
+      var rect = ch.getBoundingClientRect();
+      if (rect.top <= mid && rect.bottom > mid) current = ch;
+    });
+    if (current && current.dataset.note) {
+      currentNote = {
+        num: current.dataset.num || "",
+        label: current.dataset.label || "",
+        note: current.dataset.note
+      };
+      if (!lockedByTerm) applyNote(currentNote);
+    }
+  }
+
+  function requestFrame() {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(onFrame);
+    }
+  }
+
+  function line(text) {
+    var el = document.createElement("p");
+    el.textContent = text;
+    return el;
+  }
+
+  function limitedValue() {
+    var all = Array.from(textarea.value);
+    if (all.length > 200) textarea.value = all.slice(0, 200).join("");
+    return textarea.value;
+  }
+
+  function enforceLimit() {
+    var len = Array.from(limitedValue()).length;
+    countEl.textContent = len + " / 200";
+    countEl.classList.toggle("is-near", len >= 180);
+  }
+
+  function clearSpecimen() {
+    monument.classList.remove("has-specimen");
+    monumentText.textContent = "まだ、何も問われていない。";
+    monumentText.classList.add("is-empty");
+    monumentText.style.fontSize = "";
+    monumentText.style.maxWidth = "";
+    specimenNum.textContent = "—";
+    specimenKind.textContent = "空";
+    specimenLen.textContent = "";
+  }
+
+  function monumentSize(len) {
+    if (len <= 16) return "clamp(2.5rem, 7.2vw, 6.4rem)";
+    if (len <= 36) return "clamp(2rem, 5vw, 4.3rem)";
+    if (len <= 80) return "clamp(1.55rem, 3.3vw, 2.7rem)";
+    return "clamp(1.3rem, 2.3vw, 1.9rem)";
+  }
+
+  function accession(text) {
+    var h = 2166136261;
+    var i;
+    for (i = 0; i < text.length; i += 1) {
+      h ^= text.codePointAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return "4.7–" + (h >>> 0).toString(16).toUpperCase().padStart(8, "0").slice(0, 4);
+  }
+
+  function readQuestion(q) {
+    var frame = defaultFrame;
+    var i;
+    for (i = 0; i < frames.length; i += 1) {
+      if (frames[i].test.test(q)) frame = frames[i];
+    }
+    var len = Array.from(q).length;
+    var weight;
+    if (len < 8) weight = "ごく短い。核だけが置かれている。周辺の前提は、まだ空白だ。";
+    else if (len > 90) weight = "長い。いくつもの問いが隠れている。先に、一つに割る。";
+    else if (q.indexOf("、") !== -1) weight = "読点がある。すでに、いくつかの層に分かれ始めている。";
+    else weight = "一続きの文だ。前提は、まだ文の外にある。";
+
+    var asks = /[？?]/.test(q) || /か$|のか$|だろうか|でしょうか|ますか/.test(q);
+    var close = asks
+      ? "疑問の形をしている。それでも、その奥に、すでに望んでいる答えがないかを、先に自分へ聞く価値がある。"
+      : "疑問符がない。主張を、問いの形に開くところから始める。";
+
+    return { frame: frame, weight: weight, close: close, len: len };
+  }
+
+  function placeSpecimen(q, kind, len) {
+    monumentText.classList.remove("is-empty");
+    monumentText.textContent = q;
+    monumentText.style.fontSize = monumentSize(len);
+    monumentText.style.maxWidth = len <= 18 ? "10em" : "16em";
+    specimenNum.textContent = accession(q);
+    specimenKind.textContent = kind;
+    specimenLen.textContent = len + "字";
+    monument.classList.add("has-specimen");
+  }
+
+  var now = new Date();
+  today.textContent = now.getFullYear() + "." + pad(now.getMonth() + 1) + "." + pad(now.getDate());
+  today.setAttribute("datetime", now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate()));
+  syncSky();
+
+  toggle.addEventListener("click", function () {
+    if (root.getAttribute("data-sky") === "day") root.removeAttribute("data-sky");
+    else root.setAttribute("data-sky", "day");
+    var day = root.getAttribute("data-sky") === "day";
+    try {
+      localStorage.setItem("grok47-sky", day ? "day" : "night");
+    } catch (e) {}
+    syncSky();
+  });
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) entry.target.classList.add("is-in");
+    });
+  }, { threshold: 0.18 });
+
+  document.querySelectorAll(".reveal").forEach(function (el) {
+    observer.observe(el);
+  });
+
+  document.querySelectorAll(".term").forEach(function (term) {
+    var show = function () {
+      if (!term.dataset.note) return;
+      lockedByTerm = true;
+      applyNote({ num: "", label: "語", note: term.dataset.note });
+    };
+    var hide = function () {
+      lockedByTerm = false;
+      applyNote(currentNote);
+    };
+    term.addEventListener("mouseenter", show);
+    term.addEventListener("focus", show);
+    term.addEventListener("mouseleave", hide);
+    term.addEventListener("blur", hide);
+  });
+
+  textarea.addEventListener("input", function (event) {
+    if (event.isComposing) return;
+    enforceLimit();
+  });
+  textarea.addEventListener("compositionend", enforceLimit);
+  textarea.addEventListener("keydown", function (event) {
+    if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+      event.preventDefault();
+      form.requestSubmit();
+    }
+  });
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var q = limitedValue().replace(/\s+/g, " ").trim();
+    if (!q) {
+      reading.replaceChildren(line("まだ、何も置かれていない。空欄も、ひとつの状態だ。ただし、標本にはできない。"));
+      clearBtn.hidden = true;
+      clearSpecimen();
+      return;
+    }
+    var result = readQuestion(q);
+    var jump = document.createElement("p");
+    var anchor = document.createElement("a");
+    jump.className = "jump";
+    anchor.href = "#monument";
+    anchor.textContent = "標本を見にいく";
+    jump.appendChild(anchor);
+    reading.replaceChildren(
+      line("あなたの問いは、" + result.frame.kind + "として読める。"),
+      line(result.weight),
+      line("受けるなら、まず、" + result.frame.first + "。次に、" + result.frame.second + "。そして、" + result.frame.third + "。"),
+      line(result.close),
+      line("これは答えではない。答えの前に置く、骨格だ。"),
+      jump
+    );
+    placeSpecimen(q, result.frame.kind, result.len);
+    clearBtn.hidden = false;
+  });
+
+  clearBtn.addEventListener("click", function () {
+    textarea.value = "";
+    enforceLimit();
+    reading.replaceChildren();
+    clearBtn.hidden = true;
+    clearSpecimen();
+    textarea.focus();
+  });
+
+  window.addEventListener("scroll", requestFrame, { passive: true });
+  window.addEventListener("resize", requestFrame);
+  requestFrame();
+})();
+</script>
+</body>
+</html>

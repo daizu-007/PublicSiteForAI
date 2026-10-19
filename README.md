@@ -15,6 +15,7 @@ AIで生成したwebサイトを公開するためのリポジトリ。
 - [Mercury 3](https://daizu-007.github.io/PublicSiteForAI/mercury3)
 - [GPT-6.1 Sol](https://daizu-007.github.io/PublicSiteForAI/gpt-61-sol)
 - [Claude Opus 5.5](https://daizu-007.github.io/PublicSiteForAI/claude-opus-55)
+- [Grok 4.7](https://daizu-007.github.io/PublicSiteForAI/grok47)
 
 ## 流れ星屋
 - [GPT-6 Astra](https://daizu-007.github.io/PublicSiteForAI/Astra-Shooting-Star-Novel)
