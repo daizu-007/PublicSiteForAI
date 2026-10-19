@@ -11,7 +11,7 @@ AIで生成したwebサイトを公開するためのリポジトリ。
 - [Ox Alpha](https://daizu-007.github.io/PublicSiteForAI/ox-alpha)
 - [Muse Spark Contributor](https://daizu-007.github.io/PublicSiteForAI/muse-spark-contributor)
 - [MiniMax M3.1 Flash](https://daizu-007.github.io/PublicSiteForAI/minimax-m31-flash)
-- [DeepSeek v4.1 Flash 1017](https://daizu-007.github.io/PublicSiteForAI/deepseeekv41-flash)
+- [DeepSeek v4.1 Flash 1017](https://daizu-007.github.io/PublicSiteForAI/deepseekv41-flash)
 - [Mercury 3](https://daizu-007.github.io/PublicSiteForAI/mercury3)
 
 ## 流れ星屋
