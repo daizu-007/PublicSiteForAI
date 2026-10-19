@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Mercury 3 — Inceptionの拡散言語モデル。並列生成で言語AIの速度とコストを刷新。" />
+<title>Mercury 3 — Inception AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #06060a;
+  --bg-elev: #0c0c14;
+  --fg: #eef0f4;
+  --fg-dim: #9a9daa;
+  --fg-faint: #555862;
+  --line: rgba(255,255,255,.08);
+  --cyan: #67e8f9;
+  --violet: #a5b4fc;
+  --pink: #f9a8d4;
+  --grad: linear-gradient(135deg, var(--cyan), var(--violet));
+  --font-display: "Space Grotesk", "Noto Sans JP", sans-serif;
+  --font-body: "Noto Sans JP", sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; scroll-padding-top:88px; }
+body {
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--font-body);
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+body::after {
+  content:"";
+  position:fixed; inset:0;
+  pointer-events:none;
+  z-index:9999;
+  opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection { background:rgba(103,232,249,.25); }
+a { color:inherit; text-decoration:none; }
+img, svg { display:block; }
+
+.grad-text {
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+/* ---------- Cursor ---------- */
+.cursor-dot,
+.cursor-ring {
+  position:fixed; top:0; left:0;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:10000;
+  display:none;
+}
+.cursor-dot {
+  width:6px; height:6px;
+  background:#fff;
+}
+.cursor-ring {
+  width:36px; height:36px;
+  border:1px solid rgba(255,255,255,.3);
+  transition:width .25s ease, height .25s ease, border-color .25s ease;
+  z-index:9999;
+}
+body.cursor-hover .cursor-ring {
+  width:56px; height:56px;
+  border-color:rgba(103,232,249,.55);
+}
+@media (pointer:fine) {
+  .cursor-dot, .cursor-ring { display:block; }
+}
+
+/* ---------- Nav ---------- */
+.nav {
+  position:fixed; top:0; left:0; right:0;
+  height:72px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 32px;
+  z-index:100;
+  transition:background .35s, backdrop-filter .35s, border-color .35s;
+  border-bottom:1px solid transparent;
+}
+.nav.scrolled {
+  background:rgba(6,6,10,.72);
+  -webkit-backdrop-filter:blur(20px);
+  backdrop-filter:blur(20px);
+  border-color:var(--line);
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-mark { filter:drop-shadow(0 0 12px rgba(103,232,249,.25)); }
+.brand-name {
+  font-family:var(--font-display);
+  font-size:14px; font-weight:600;
+  letter-spacing:.22em;
+}
+.nav-links { display:flex; gap:28px; }
+.nav-links a {
+  font-size:13.5px;
+  color:var(--fg-dim);
+  transition:color .25s;
+}
+.nav-links a:hover { color:var(--fg); }
+.nav-cta { display:none; }
+@media (min-width:900px) { .nav-cta { display:inline-flex; } }
+@media (max-width:900px) { .nav-links { display:none; } }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:13px 26px;
+  border-radius:999px;
+  font-family:var(--font-display);
+  font-size:.92rem; font-weight:500;
+  letter-spacing:.03em;
+  transition:all .3s ease;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.btn-primary { background:var(--fg); color:#08080c; }
+.btn-primary:hover {
+  transform:translateY(-2px);
+  box-shadow:0 0 44px rgba(255,255,255,.18);
+}
+.btn-ghost {
+  border:1px solid var(--line);
+  color:var(--fg);
+}
+.btn-ghost:hover { border-color:rgba(255,255,255,.35); background:rgba(255,255,255,.04); }
+.btn-text {
+  padding:6px 2px;
+  border-bottom:1px solid var(--line);
+  border-radius:0;
+  color:var(--fg);
+}
+.btn-text:hover { border-bottom-color:var(--fg); }
+.btn-lg { padding:18px 38px; font-size:1rem; }
+
+/* ---------- Hero ---------- */
+.hero {
+  position:relative;
+  min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center;
+  padding:120px 24px 120px;
+  overflow:hidden;
+}
+.hero-canvas {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  pointer-events:none;
+}
+.hero-grid {
+  position:absolute; inset:0;
+  background:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size:80px 80px;
+  -webkit-mask-image:radial-gradient(ellipse at center, #000 20%, transparent 72%);
+  mask-image:radial-gradient(ellipse at center, #000 20%, transparent 72%);
+}
+.hero-inner { position:relative; z-index:2; max-width:1000px; }
+.badge {
+  display:inline-flex; align-items:center; gap:10px;
+  padding:8px 18px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-family:var(--font-display);
+  font-size:11px; font-weight:500;
+  letter-spacing:.28em;
+  color:var(--fg-dim);
+  margin-bottom:40px;
+  background:rgba(255,255,255,.02);
+}
+.pulse-dot {
+  width:7px; height:7px;
+  border-radius:50%;
+  background:var(--cyan);
+  animation:pulse 2.2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow:0 0 0 0 rgba(103,232,249,.45); }
+  70% { box-shadow:0 0 0 9px rgba(103,232,249,0); }
+  100% { box-shadow:0 0 0 0 rgba(103,232,249,0); }
+}
+.hero-title { margin-bottom:32px; }
+.title-line { display:block; overflow:hidden; }
+.title-en {
+  display:inline-block;
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:clamp(4.5rem, 17vw, 12.5rem);
+  line-height:.9;
+  letter-spacing:-.025em;
+}
+.title-3 {
+  color:transparent;
+  -webkit-text-stroke:2px #fff;
+}
+.hero-title .reveal-char {
+  opacity:0;
+  transform:translateY(36px);
+  filter:blur(10px);
+  transition:opacity .9s cubic-bezier(.2,.7,.2,1),
+             transform .9s cubic-bezier(.2,.7,.2,1),
+             filter .9s cubic-bezier(.2,.7,.2,1);
+}
+.loaded .hero-title .reveal-char {
+  opacity:1;
+  transform:none;
+  filter:blur(0);
+}
+.hero-tagline {
+  font-size:clamp(1.25rem, 3.4vw, 2.25rem);
+  font-weight:700;
+  letter-spacing:.02em;
+  margin-bottom:20px;
+}
+.hero-desc {
+  font-size:clamp(.95rem, 1.6vw, 1.1rem);
+  color:var(--fg-dim);
+  max-width:44em;
+  margin:0 auto 44px;
+  font-weight:300;
+}
+.hero-actions { display:flex; gap:20px; justify-content:center; flex-wrap:wrap; }
+.hero-scroll {
+  position:absolute; bottom:28px; left:50%;
+  transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center;
+  gap:10px;
+  font-family:var(--font-display);
+  font-size:10px;
+  letter-spacing:.34em;
+  color:var(--fg-faint);
+}
+.scroll-line {
+  width:1px; height:44px;
+  background:rgba(255,255,255,.15);
+  overflow:hidden;
+  position:relative;
+}
+.scroll-line::after {
+  content:"";
+  position:absolute; left:0; top:-44px;
+  width:100%; height:44px;
+  background:var(--fg);
+  animation:scrollline 1.8s ease-in-out infinite;
+}
+@keyframes scrollline {
+  0% { top:-44px; }
+  100% { top:44px; }
+}
+
+/* ---------- Marquee ---------- */
+.marquee {
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  overflow:hidden;
+  padding:14px 0;
+  background:rgba(255,255,255,.012);
+}
+.marquee-track {
+  display:flex;
+  width:max-content;
+  gap:40px;
+  animation:marquee 28s linear infinite;
+}
+.marquee-track span {
+  font-family:var(--font-display);
+  font-size:12px;
+  letter-spacing:.3em;
+  color:var(--fg-dim);
+  white-space:nowrap;
+}
+.marquee-track .dot { color:var(--fg-faint); }
+@keyframes marquee {
+  from { transform:translateX(0); }
+  to { transform:translateX(-50%); }
+}
+
+/* ---------- Sections ---------- */
+.section { position:relative; padding:150px 0; }
+.section::before {
+  content:"";
+  position:absolute;
+  top:0; left:50%;
+  transform:translateX(-50%);
+  width:min(900px, 90vw);
+  height:600px;
+  background:radial-gradient(ellipse at center, rgba(103,232,249,.05), transparent 65%);
+  pointer-events:none;
+}
+.container { max-width:1200px; margin:0 auto; padding:0 32px; }
+.container.narrow { max-width:920px; }
+.section-tag {
+  font-family:var(--font-display);
+  font-size:13px;
+  letter-spacing:.28em;
+  color:var(--fg-dim);
+  margin-bottom:22px;
+  text-transform:uppercase;
+}
+.section-tag span { color:var(--fg-faint); }
+.section-title {
+  font-family:var(--font-display);
+  font-size:clamp(2rem, 5vw, 3.75rem);
+  font-weight:600;
+  letter-spacing:-.025em;
+  line-height:1.15;
+  margin-bottom:30px;
+}
+.section-lead {
+  color:var(--fg-dim);
+  font-size:1.0625rem;
+  font-weight:300;
+  max-width:36em;
+}
+
+/* ---------- Compare / Problem ---------- */
+.compare-wrap {
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:32px;
+  align-items:stretch;
+  margin-top:80px;
+}
+.compare-lane {
+  background:var(--bg-elev);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:28px;
+  transition:border-color .3s;
+}
+.compare-lane.highlight {
+  border:1px solid transparent;
+  background:
+    linear-gradient(var(--bg-elev), var(--bg-elev)) padding-box,
+    var(--grad) border-box;
+}
+.lane-head { display:flex; align-items:baseline; gap:12px; margin-bottom:20px; }
+.lane-idx {
+  font-family:var(--font-display);
+  font-size:14px;
+  color:var(--fg-faint);
+}
+.lane-name { font-weight:700; font-size:1.05rem; }
+.lane-sub {
+  font-family:var(--font-display);
+  font-size:12px;
+  letter-spacing:.12em;
+  color:var(--fg-dim);
+}
+.lane-track {
+  display:grid;
+  grid-template-columns:repeat(8, 1fr);
+  gap:7px;
+  padding:12px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--line);
+  border-radius:12px;
+}
+.tile {
+  aspect-ratio:1;
+  border-radius:4px;
+  background:rgba(255,255,255,.06);
+  transition:background .2s ease, box-shadow .2s ease;
+}
+.tile.on-ar {
+  background:rgba(255,255,255,.75);
+  box-shadow:0 0 10px rgba(255,255,255,.25);
+}
+.tile.on-diff {
+  background:var(--grad);
+  box-shadow:0 0 12px rgba(103,232,249,.4);
+}
+.lane-note {
+  margin-top:16px;
+  font-size:13.5px;
+  color:var(--fg-dim);
+  font-weight:300;
+}
+.compare-vs {
+  align-self:center;
+  width:48px; height:48px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:50%;
+  background:var(--bg-elev);
+  border:1px solid var(--line);
+  font-family:var(--font-display);
+  font-size:12px;
+  letter-spacing:.05em;
+  color:var(--fg-dim);
+}
+
+/* ---------- Solution steps ---------- */
+.solution-steps {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+  gap:24px;
+  margin-top:64px;
+}
+.step {
+  padding:28px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--line);
+  border-radius:16px;
+  transition:transform .3s, border-color .3s;
+}
+.step:hover { transform:translateY(-3px); border-color:rgba(165,180,252,.35); }
+.step-num {
+  font-family:var(--font-display);
+  font-size:13px;
+  color:var(--cyan);
+  letter-spacing:.2em;
+  display:block;
+  margin-bottom:14px;
+}
+.step h3 { font-size:1.1rem; margin-bottom:8px; }
+.step p { font-size:14px; color:var(--fg-dim); font-weight:300; }
+
+/* ---------- Features ---------- */
+.feature-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  gap:24px;
+  margin-top:64px;
+}
+.feature-card {
+  background:var(--bg-elev);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:32px;
+  transition:transform .35s, border-color .35s;
+}
+.feature-card:hover {
+  transform:translateY(-4px);
+  border-color:rgba(103,232,249,.35);
+}
+.feature-icon {
+  width:44px; height:44px;
+  border-radius:12px;
+  background:var(--grad);
+  color:#06060a;
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:24px;
+}
+.feature-card h3 { font-size:1.05rem; margin-bottom:10px; }
+.feature-card p { font-size:14px; color:var(--fg-dim); font-weight:300; }
+
+/* ---------- Metrics ---------- */
+.metrics-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+  gap:32px;
+  margin-top:64px;
+}
+.metric { padding:8px 0; }
+.metric-value {
+  font-family:var(--font-display);
+  font-size:clamp(2.8rem, 6vw, 4.5rem);
+  font-weight:600;
+  letter-spacing:-.03em;
+  line-height:1;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  margin-bottom:14px;
+}
+.metric-label { font-weight:600; font-size:1rem; }
+.metric-sub { font-size:13px; color:var(--fg-dim); margin-top:4px; font-weight:300; }
+.metrics-note {
+  margin-top:48px;
+  font-size:12.5px;
+  color:var(--fg-faint);
+  border-top:1px solid var(--line);
+  padding-top:18px;
+}
+
+/* ---------- Accordion ---------- */
+.accordion { border-bottom:1px solid var(--line); }
+.accordion summary {
+  padding:26px 0;
+  font-size:1.06rem;
+  font-weight:600;
+  cursor:pointer;
+  list-style:none;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  transition:color .25s;
+}
+.accordion summary::-webkit-details-marker { display:none; }
+.accordion summary::after {
+  content:"+";
+  font-family:var(--font-display);
+  font-size:1.4rem;
+  font-weight:400;
+  color:var(--fg-dim);
+  transition:transform .3s;
+}
+.accordion[open] summary::after { content:"×"; }
+.accordion[open] summary { color:var(--cyan); }
+.accordion-body {
+  padding:0 24px 28px 0;
+  color:var(--fg-dim);
+  font-size:14.5px;
+  font-weight:300;
+  max-width:58em;
+}
+.accordion-body p + p { margin-top:12px; }
+
+/* ---------- Team ---------- */
+.team-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  gap:24px;
+  margin-top:64px;
+}
+.team-card {
+  background:var(--bg-elev);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:32px;
+  text-align:center;
+  transition:transform .3s, border-color .3s;
+}
+.team-card:hover { transform:translateY(-4px); border-color:rgba(165,180,252,.35); }
+.avatar {
+  width:64px; height:64px;
+  border-radius:50%;
+  margin:0 auto 20px;
+  background:var(--grad);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:1.1rem;
+  color:#06060a;
+}
+.team-card h3 { font-size:1.05rem; margin-bottom:8px; }
+.team-card p { font-size:13.5px; color:var(--fg-dim); font-weight:300; line-height:1.8; }
+.team-note {
+  margin-top:48px;
+  padding-top:24px;
+  border-top:1px solid var(--line);
+  color:var(--fg-dim);
+  font-size:14px;
+  font-weight:300;
+  max-width:40em;
+}
+
+/* ---------- CTA ---------- */
+.cta-section { text-align:center; }
+.cta-section .section-title { margin-bottom:16px; }
+.cta-section p { color:var(--fg-dim); margin-bottom:40px; font-weight:300; }
+.cta-actions { display:flex; gap:20px; justify-content:center; flex-wrap:wrap; }
+
+/* ---------- Footer ---------- */
+footer {
+  padding:48px 0 64px;
+  border-top:1px solid var(--line);
+}
+.footer-inner {
+  max-width:1200px;
+  margin:0 auto;
+  padding:0 32px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:20px;
+}
+.footer-brand {
+  font-family:var(--font-display);
+  font-weight:600;
+  letter-spacing:.22em;
+  font-size:14px;
+}
+.footer-links { display:flex; gap:24px; }
+.footer-links a { font-size:13px; color:var(--fg-dim); transition:color .25s; }
+.footer-links a:hover { color:var(--fg); }
+.footer-copy { font-size:12.5px; color:var(--fg-faint); width:100%; }
+
+/* ---------- Reveal ---------- */
+.reveal {
+  opacity:0;
+  transform:translateY(28px);
+  transition:opacity .9s cubic-bezier(.2,.7,.2,1),
+             transform .9s cubic-bezier(.2,.7,.2,1);
+}
+.reveal.visible { opacity:1; transform:none; }
+
+/* ---------- Responsive ---------- */
+@media (max-width:900px) {
+  .section { padding:100px 0; }
+  .compare-wrap { grid-template-columns:1fr; gap:20px; }
+  .compare-vs { margin:0 auto; }
+  .nav { padding:0 20px; }
+  .container { padding:0 20px; }
+  .hero { padding:110px 20px 100px; }
+}
+@media (max-width:480px) {
+  .lane-track { grid-template-columns:repeat(8, autofr); gap:5px; }
+  .btn-lg { padding:15px 28px; }
+}
+
+/* ---------- Reduced Motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:.001s !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001s !important;
+  }
+  .reveal, .hero-title .reveal-char {
+    opacity:1 !important;
+    transform:none !important;
+    filter:none !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor-dot" aria-hidden="true"></div>
+<div class="cursor-ring" aria-hidden="true"></div>
+
+<!-- Navigation -->
+<header class="nav" id="nav">
+  <a href="#hero" class="brand">
+    <span class="brand-mark">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="brandGrad" x1="0" y1="0" x2="28" y2="28">
+            <stop stop-color="#67e8f9" />
+            <stop offset="1" stop-color="#a5b4fc" />
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="24" height="24" rx="8" fill="url(#brandGrad)" />
+        <circle cx="14" cy="14" r="6" fill="#06060a" />
+        <circle cx="14" cy="14" r="2.4" fill="#fff" />
+      </svg>
+    </span>
+    <span class="brand-name">INCEPTION</span>
+  </a>
+  <nav class="nav-links" aria-label="メインナビゲーション">
+    <a href="#problem">課題</a>
+    <a href="#solution">技術</a>
+    <a href="#features">特徴</a>
+    <a href="#metrics">数値</a>
+    <a href="#team">チーム</a>
+  </nav>
+  <a href="#contact" class="btn btn-ghost nav-cta">デモを予約</a>
+</header>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="hero">
+    <canvas class="hero-canvas" id="hero-canvas" aria-hidden="true"></canvas>
+    <div class="hero-grid" aria-hidden="true"></div>
+
+    <div class="hero-inner">
+      <div class="badge"><span class="pulse-dot"></span>&nbsp;INCEPTION AI — NEW RELEASE</div>
+      <h1 class="hero-title">
+        <span class="title-line"><span class="title-en reveal-char">MERCURY</span></span>
+        <span class="title-line"><span class="title-en title-3 reveal-char">3</span></span>
+      </h1>
+      <p class="hero-tagline">生成は、もう待たない。</p>
+      <p class="hero-desc">
+        Mercury 3 は、拡散モデルを基盤とする次世代言語AI。<br />
+        複数のトークンを同時に生成し、速度・コスト・制御性の限界を書き換える。
+      </p>
+      <div class="hero-actions">
+        <a href="#solution" class="btn btn-primary">技術を知る</a>
+        <a href="#metrics" class="btn btn-text">スペックを見る →</a>
+      </div>
+    </div>
+
+    <div class="hero-scroll" aria-hidden="true">
+      SCROLL
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ============ MARQUEE ============ -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>PARALLEL GENERATION</span><span class="dot">✦</span>
+      <span>DIFFUSION LLM</span><span class="dot">✦</span>
+      <span>STRUCTURE-AWARE</span><span class="dot">✦</span>
+      <span>MULTIMODAL</span><span class="dot">✦</span>
+      <span>LOW LATENCY</span><span class="dot">✦</span>
+      <span>COST-EFFICIENT</span><span class="dot">✦</span>
+      <span>PARALLEL GENERATION</span><span class="dot">✦</span>
+      <span>DIFFUSION LLM</span><span class="dot">✦</span>
+      <span>STRUCTURE-AWARE</span><span class="dot">✦</span>
+      <span>MULTIMODAL</span><span class="dot">✦</span>
+      <span>LOW LATENCY</span><span class="dot">✦</span>
+      <span>COST-EFFICIENT</span><span class="dot">✦</span>
+    </div>
+  </div>
+
+  <!-- ============ PROBLEM ============ -->
+  <section class="section" id="problem">
+    <div class="container">
+      <p class="section-tag reveal">01 <span>— THE PROBLEM</span></p>
+      <h2 class="section-title reveal">すべてのLLMが抱えてきた、<br /><span class="grad-text">「逐次生成」の壁。</span></h2>
+      <p class="section-lead reveal">
+        現在の大規模言語モデルは、回答を「次の一語」ずつしか書けません。
+        この仕組みは信頼性が高い反面、長文になるほど時間がかかり、
+        計算コストも際限なく積み上がっていきます。
+      </p>
+
+      <div class="compare-wrap">
+        <div class="compare-lane reveal">
+          <div class="lane-head">
+            <span class="lane-idx">A.</span>
+            <span class="lane-name">従来のLLM</span>
+            <span class="lane-sub">Autoregressive</span>
+          </div>
+          <div class="lane-track ar-track" id="ar-track"></div>
+          <p class="lane-note">「次の単語」を1つずつ生成する。<br />長い文章ほど待ち時間が伸びる。</p>
+        </div>
+
+        <div class="compare-vs reveal" aria-hidden="true">VS</div>
+
+        <div class="compare-lane highlight reveal">
+          <div class="lane-head">
+            <span class="lane-idx">B.</span>
+            <span class="lane-name">Mercury 3</span>
+            <span class="lane-sub">Diffusion</span>
+          </div>
+          <div class="lane-track diff-track" id="diff-track"></div>
+          <p class="lane-note">複数トークンを同時並列で生成する。<br />待ち時間の概念がなくなる。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SOLUTION ============ -->
+  <section class="section" id="solution">
+    <div class="container">
+      <p class="section-tag reveal">02 <span>— THE BREAKTHROUGH</span></p>
+      <h2 class="section-title reveal">言語生成を、<br /><span class="grad-text">「拡散」から再設計。</span></h2>
+      <p class="section-lead reveal">
+        拡散モデルは、ノイズから出発し、段階的に構造を生み出す生成フレームワーク。
+        画像生成で実証されたこの技法を、Mercury 3 は言語の領域に応用しました。
+      </p>
+
+      <div class="solution-steps">
+        <div class="step reveal" data-delay="0">
+          <span class="step-num">STEP 01</span>
+          <h3>ノイズから出発</h3>
+          <p>まず乱数を埋め込んだ「型のない塊」を用意します。</p>
+        </div>
+        <div class="step reveal" data-delay="120">
+          <span class="step-num">STEP 02</span>
+          <h3>並列で洗練</h3>
+          <p>全ポジションの差分を同時に推定し、全体を修正していきます。</p>
+        </div>
+        <div class="step reveal" data-delay="240">
+          <span class="step-num">STEP 03</span>
+          <h3>高品質へ収束</h3>
+          <p>わずか数ステップで、文法的にも意図的にも完成された文が得られます。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="section" id="features">
+    <div class="container">
+      <p class="section-tag reveal">03 <span>— CAPABILITIES</span></p>
+      <h2 class="section-title reveal">速さだけでなく、<br /><span class="grad-text">創造の仕方まで変える。</span></h2>
+
+      <div class="feature-grid">
+        <article class="feature-card reveal">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+          </div>
+          <h3>疾走する並列生成</h3>
+          <p>1回の推論ステップで多数のトークンを生成。長文や複雑なタスクでも、レイテンシーが劇的に低下します。</p>
+        </article>
+
+        <article class="feature-card reveal" data-delay="100">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="9" x2="21" y2="9" /><line x1="9" y1="21" x2="9" y2="9" /></svg>
+          </div>
+          <h3>生成を“設計”できる</h3>
+          <p>JSONスキーマや意味的な制約を直接指定。常に要求どおりの形式と内容で、アウトプットを返します。</p>
+        </article>
+
+        <article class="feature-card reveal" data-delay="200">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></svg>
+          </div>
+          <h3>ひとつの枠組みで多モダリティ</h3>
+          <p>テキスト・音声・画像・映像を同一の生成パラダイムとして扱い、クロスモーダルな可能性を広げます。</p>
+        </article>
+
+        <article class="feature-card reveal" data-delay="300">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+          </div>
+          <h3>コストを半分以下に</h3>
+          <p>並列化による計算資源の徹底活用により、性能を保ったまま推論コストを大幅に圧縮します。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ METRICS ============ -->
+  <section class="section" id="metrics">
+    <div class="container">
+      <p class="section-tag reveal">04 <span>— NUMBERS</span></p>
+      <h2 class="section-title reveal">数字で見る、その違い。</h2>
+
+      <div class="metrics-grid">
+        <div class="metric reveal">
+          <div class="metric-value"><span class="count" data-count="5" data-suffix="×">0</span></div>
+          <div class="metric-label">従来比スループット</div>
+          <div class="metric-sub">主要な自己回帰モデルとの比較</div>
+        </div>
+        <div class="metric reveal" data-delay="100">
+          <div class="metric-value"><span class="count" data-count="50" data-prefix="-" data-suffix="%">0</span></div>
+          <div class="metric-label">推論コスト削減</div>
+          <div class="metric-sub">同品質での推定値</div>
+        </div>
+        <div class="metric reveal" data-delay="200">
+          <div class="metric-value"><span class="count" data-count="1024">0</span></div>
+          <div class="metric-label">最大並列トークン数</div>
+          <div class="metric-sub">実験環境における最大値</div>
+        </div>
+        <div class="metric reveal" data-delay="300">
+          <div class="metric-value"><span class="count" data-count="4" data-suffix="+">0</span></div>
+          <div class="metric-label">対応モダリティ</div>
+          <div class="metric-sub">テキスト / 音声 / 画像 / 映像</div>
+        </div>
+      </div>
+
+      <p class="metrics-note">※ 本数値は研究開発中のベンチマーク結果に基づくものです。</p>
+    </div>
+  </section>
+
+  <!-- ============ SCIENCE ============ -->
+  <section class="section" id="science">
+    <div class="container narrow">
+      <p class="section-tag reveal">05 <span>— BEHIND THE SCENES</span></p>
+      <h2 class="section-title reveal">テクノロジーの深層。</h2>
+
+      <details class="accordion reveal">
+        <summary>拡散言語モデルとは？</summary>
+        <div class="accordion-body">
+          <p>テキストにノイズを加え、それを少しずつ取り除くように学習することで、生成過程そのものを「並列」にします。始点から直接答えを書くのではなく、全体の形を徐々に固めていくため、複数トークンの生成が同時に進行します。</p>
+        </div>
+      </details>
+
+      <details class="accordion reveal">
+        <summary>なぜこれほど高速なのか？</summary>
+        <div class="accordion-body">
+          <p>自己回帰モデルは N 個のトークンを生成するのに N 回の推論が必要ですが、Mercury 3 は数回〜十数回の反復処理で全体を仕上げます。GPUなど並列ハードウェアとの親和性も高く、理論上の演算量も圧倒的に少なくなります。</p>
+        </div>
+      </details>
+
+      <details class="accordion reveal">
+        <summary>最先端技術との親和性</summary>
+        <div class="accordion-body">
+          <p>Flash Attentionに代表される既存の最適化技術は、そのまま適用可能です。さらに、拡散モデル由来の強力な制御手法を組み合わせることで、自由な生成と厳密な制約の両立を実現しています。</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ TEAM ============ -->
+  <section class="section" id="team">
+    <div class="container">
+      <p class="section-tag reveal">06 <span>— ORIGIN</span></p>
+      <h2 class="section-title reveal">拡散の第一人者たちが、<br /><span class="grad-text">言語に挑む。</span></h2>
+
+      <div class="team-grid">
+        <article class="team-card reveal">
+          <div class="avatar">SE</div>
+          <h3>Stefano Ermon</h3>
+          <p>共同創業者 / スタンフォード大学 教授<br />拡散モデル・Flash Attention・DPOの共同発明者</p>
+        </article>
+        <article class="team-card reveal" data-delay="100">
+          <div class="avatar">AG</div>
+          <h3>Aditya Grover</h3>
+          <p>共同創業者 / UCLA 教授<br />node2vec・Decision Transformerの発明者</p>
+        </article>
+        <article class="team-card reveal" data-delay="200">
+          <div class="avatar">VK</div>
+          <h3>Volodymyr Kuleshov</h3>
+          <p>共同創業者 / コーネル大学 準教授<br />Afresh Technologies 元CTO</p>
+        </article>
+      </div>
+
+      <p class="team-note reveal">
+        私たちのチームには、Google DeepMind・Meta AI・Microsoft AI・OpenAIで研鑽を積んだエンジニアが集結しています。
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section class="section cta-section" id="contact">
+    <div class="container">
+      <h2 class="section-title reveal">新しい言語生成の時代を、<br /><span class="grad-text">先取りする。</span></h2>
+      <p class="reveal">企業向けのデモンストレーションおよび技術相談を、随時受け付けています。</p>
+      <div class="cta-actions reveal">
+        <a href="mailto:hello@inception.ai" class="btn btn-primary btn-lg">デモを予約する</a>
+        <a href="#team" class="btn btn-text">私たちのチームへ →</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">INCEPTION</div>
+    <div class="footer-links">
+      <a href="#">X / Twitter</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">GitHub</a>
+    </div>
+    <p class="footer-copy">© 2026 Inception AI Inc. All rights reserved.</p>
+  </div>
+</footer>
+
+<noscript>
+  <style>
+    .reveal, .hero-title .reveal-char { opacity:1 !important; transform:none !important; filter:none !important; }
+  </style>
+</noscript>
+
+<script>
+(function () {
+  'use strict';
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Hero title load animation ---------- */
+  document.body.classList.add('loaded');
+  const heroChars = document.querySelectorAll('.hero-title .reveal-char');
+  heroChars.forEach(function (c, i) {
+    c.style.transitionDelay = (i * 0.07) + 's';
+  });
+
+  /* ---------- Reveal on scroll ---------- */
+  document.querySelectorAll('[data-delay]').forEach(function (el) {
+    el.style.transitionDelay = el.dataset.delay + 'ms';
+  });
+  const io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+
+  /* ---------- Nav state ---------- */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', function () {
+    nav.classList.toggle('scrolled', window.scrollY > 30);
+  }, { passive: true });
+
+  /* ---------- Custom cursor ---------- */
+  if (window.matchMedia('(pointer: fine)').matches && !reduceMotion) {
+    const dot = document.querySelector('.cursor-dot');
+    const ring = document.querySelector('.cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    window.addEventListener('mousemove', function (e) {
+      mx = e.clientX; my = e.clientY;
+      dot.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)';
+    });
+
+    (function ringLoop() {
+      rx += (mx - rx) * 0.15;
+      ry += (my - ry) * 0.15;
+      ring.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)';
+      requestAnimationFrame(ringLoop);
+    })();
+
+    document.querySelectorAll('a, button, .feature-card, summary, .step').forEach(function (el) {
+      el.addEventListener('mouseenter', function () { document.body.classList.add('cursor-hover'); });
+      el.addEventListener('mouseleave', function () { document.body.classList.remove('cursor-hover'); });
+    });
+  }
+
+  /* ---------- Hero particle canvas ---------- */
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  let w = 0, h = 0, particles = [];
+  const mouse = { x: -9999, y: -9999 };
+
+  function resize() {
+    w = canvas.offsetWidth;
+    h = canvas.offsetHeight;
+    canvas.width = w * DPR;
+    canvas.height = h * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    initParticles();
+  }
+
+  function initParticles() {
+    const count = w < 640 ? 60 : 110;
+    particles = Array.from({ length: count }, function () {
+      return {
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.4 + 0.3,
+        drift: Math.random() * Math.PI * 2,
+        alpha: Math.random() * 0.45 + 0.15
+      };
+    });
+  }
+
+  window.addEventListener('mousemove', function (e) {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  }, { passive: true });
+
+  window.addEventListener('mouseleave', function () {
+    mouse.x = -9999; mouse.y = -9999;
+  });
+
+  function particleLoop() {
+    ctx.clearRect(0, 0, w, h);
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.drift += 0.002;
+      p.x += Math.cos(p.drift) * 0.2;
+      p.y += Math.sin(p.drift) * 0.1 - 0.025;
+
+      if (p.y < -10) p.y = h + 10;
+      if (p.x < -10) p.x = w + 10;
+      if (p.x > w + 10) p.x = -10;
+
+      const dx = p.x - mouse.x;
+      const dy = p.y - mouse.y;
+      const d2 = dx * dx + dy * dy;
+      if (d2 < 14400) {
+        const d = Math.sqrt(d2) || 1;
+        const force = (120 - d) / 120 * 0.6;
+        p.x += (dx / d) * force;
+        p.y += (dy / d) * force;
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(220,230,255,' + p.alpha + ')';
+      ctx.fill();
+    }
+    if (!reduceMotion) requestAnimationFrame(particleLoop);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  if (!reduceMotion) requestAnimationFrame(particleLoop);
+
+  /* ---------- Compare lanes animation ---------- */
+  const arTrack = document.getElementById('ar-track');
+  const diffTrack = document.getElementById('diff-track');
+  const TILES = 16;
+
+  for (let i = 0; i < TILES; i++) {
+    arTrack.insertAdjacentHTML('beforeend', '<span class="tile"></span>');
+    diffTrack.insertAdjacentHTML('beforeend', '<span class="tile"></span>');
+  }
+
+  let arIdx = 0;
+  setInterval(function () {
+    const tiles = arTrack.children;
+    if (tiles[arIdx]) tiles[arIdx].classList.add('on-ar');
+    const prev = (arIdx + TILES - 1) % TILES;
+    if (tiles[prev]) tiles[prev].classList.remove('on-ar');
+    arIdx = (arIdx + 1) % TILES;
+  }, 180);
+
+  setInterval(function () {
+    const tiles = diffTrack.children;
+    for (let i = 0; i < TILES; i++) tiles[i].classList.add('on-diff');
+    setTimeout(function () {
+      for (let i = 0; i < TILES; i++) tiles[i].classList.remove('on-diff');
+    }, 320);
+  }, 1800);
+
+  /* ---------- Counters ---------- */
+  const countIO = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = parseFloat(el.dataset.count);
+      const prefix = el.dataset.prefix || '';
+      const suffix = el.dataset.suffix || '';
+      const duration = 1800;
+      const start = performance.now();
+
+      function tick(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 4);
+        const val = Math.round(target * eased);
+        el.textContent = prefix + val.toLocaleString() + suffix;
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      countIO.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.count').forEach(function (el) { countIO.observe(el); });
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="ja" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DeepSeek-V4.1-Flash-1017 — 光は、ためらわない。</title>
+<meta name="description" content="DeepSeek-V4.1-Flash-1017。入力 8B、出力 16B の非対称アーキテクチャ。待たないことと、深く考えることを、同じ設計に。">
+<meta name="theme-color" content="#08080A">
+<meta property="og:title" content="DeepSeek-V4.1-Flash-1017 — 光は、ためらわない。">
+<meta property="og:description" content="読むのは軽く、書くのは深く。552B MoE、非対称エンコーダ・デコーダ。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+document.documentElement.classList.remove('no-js');
+document.documentElement.classList.add('js');
+window.setTimeout(function () {
+  if (!window.__dshReady) document.documentElement.classList.remove('js');
+}, 3000);
+</script>
+</head>
+<body>
+<a class="skip" href="#main">本文へスキップ</a>
+
+<div class="progress" aria-hidden="true"><i data-progress></i></div>
+
+<header class="nav" data-nav>
+  <div class="nav__in">
+    <a class="brand" href="#top" aria-label="DeepSeek V4.1 Flash — ページ先頭へ">
+      <span class="brand__name">DeepSeek</span>
+      <span class="brand__rule" aria-hidden="true"></span>
+      <span class="brand__model">V4.1&nbsp;Flash</span>
+    </a>
+
+    <nav class="nav__links" aria-label="主要">
+      <a href="#design"><span class="nav__n">02</span>設計</a>
+      <a href="#memory"><span class="nav__n">03</span>記憶</a>
+      <a href="#build"><span class="nav__n">04</span>制作</a>
+      <a href="#spec"><span class="nav__n">05</span>仕様</a>
+      <a href="#api"><span class="nav__n">06</span>API</a>
+    </nav>
+
+    <div class="nav__end">
+      <span class="nav__build">Build 1017</span>
+      <a class="btn btn--ghost btn--sm" href="#api">はじめる</a>
+      <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="メニューを開く" data-burger>
+        <span aria-hidden="true"></span><span aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="menu" id="menu" aria-hidden="true" data-menu>
+  <nav class="menu__nav" aria-label="メニュー">
+    <a href="#design"><i>02</i><b>設計</b><span>読むのは軽く、書くのは深く。</span></a>
+    <a href="#memory"><i>03</i><b>記憶</b><span>長い会話が、高くつかない理由。</span></a>
+    <a href="#build"><i>04</i><b>制作</b><span>断片ではなく、作品を。</span></a>
+    <a href="#spec"><i>05</i><b>仕様</b><span>数値で見る、V4.1-Flash-1017。</span></a>
+    <a href="#api"><i>06</i><b>API</b><span>はじまりは、三行。</span></a>
+  </nav>
+  <p class="menu__foot">DeepSeek-V4.1-Flash-1017 · 2026.10.17</p>
+</div>
+
+<main id="main">
+
+  <!-- 00 ─────────────────────────────────────────── HERO -->
+  <section class="hero" id="top">
+    <div class="hero__field" aria-hidden="true">
+      <canvas data-field></canvas>
+      <div class="hero__scrim"></div>
+    </div>
+
+    <div class="hero__in">
+      <div class="hero__meta">
+        <p class="mono">DeepSeek-V4.1-Flash-1017</p>
+        <p class="mono">2026.10.17 — Released</p>
+      </div>
+
+      <div class="hero__body">
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Open weights · 552B MoE</p>
+
+        <h1 class="hero__title">
+          <span class="line"><span>光は、</span></span>
+          <span class="line"><span>ためらわない。</span></span>
+        </h1>
+
+        <p class="hero__lead">
+          応答の速さは、演出ではなく設計です。V4.1-Flash-1017 は、読む工程と書く工程を、
+          別々の大きさに分けました。だから待たない。
+        </p>
+
+        <div class="hero__cta">
+          <a class="btn" href="#api">API をはじめる</a>
+          <a class="btn btn--text" href="#design">設計を読む<span class="arrow" aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+
+      <dl class="hero__stats">
+        <div class="stat">
+          <dt>総パラメータ</dt>
+          <dd>552<span class="u">B</span></dd>
+        </div>
+        <div class="stat">
+          <dt>活性パラメータ</dt>
+          <dd>8<span class="u">→</span>16<span class="u">B</span></dd>
+        </div>
+        <div class="stat">
+          <dt>KV キャッシュ · HBM</dt>
+          <dd><span class="frac">1</span><span class="slash" aria-hidden="true">/</span><span class="frac">4</span></dd>
+        </div>
+        <div class="stat">
+          <dt>ビルド</dt>
+          <dd>1017</dd>
+        </div>
+      </dl>
+    </div>
+
+    <span class="hero__scroll mono" aria-hidden="true">Scroll</span>
+  </section>
+
+  <!-- 01 ─────────────────────────────────────────── PREMISE -->
+  <section class="sec" id="premise">
+    <div class="wrap g">
+      <div class="rail" data-reveal><span class="mono">01</span></div>
+      <div class="col">
+        <header class="shead" data-reveal>
+          <p class="kicker">Premise</p>
+          <h2>速さは、<br>設計の結果でしかない。</h2>
+        </header>
+
+        <div class="split" data-reveal style="--d:80ms">
+          <div class="prose">
+            <p>
+              モデルを大きくすれば賢くなる。それは正しい。けれど、その代償を毎回ユーザーが
+              払う必要はありません。V4.1-Flash は、読む工程と書く工程を分けました。
+              入力は 8B、出力は 16B。全体では 552B の MoE が控えています。
+            </p>
+            <p>
+              速さを削って手に入れたわけでもありません。1017 は、前版より多くの
+              ベンチマークで前に出ています。同じか、より安く、より速く、より賢い。
+              これが今回のビルドです。
+            </p>
+          </div>
+
+          <aside class="note" aria-label="アーキテクチャ要約">
+            <div class="note__row">
+              <span class="note__k">Arch</span>
+              <span class="note__v">Causal Encoder–Decoder</span>
+            </div>
+            <div class="note__row">
+              <span class="note__k">Active</span>
+              <span class="note__v">8B in · 16B out</span>
+            </div>
+            <div class="note__row">
+              <span class="note__k">Total</span>
+              <span class="note__v">552B MoE</span>
+            </div>
+            <div class="note__row">
+              <span class="note__k">Input</span>
+              <span class="note__v">Text · Image</span>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 ─────────────────────────────────────────── DESIGN / LENS -->
+  <section class="sec" id="design">
+    <div class="wrap g">
+      <div class="rail" data-reveal><span class="mono">02</span></div>
+      <div class="col">
+        <header class="shead" data-reveal>
+          <p class="kicker">Architecture</p>
+          <h2>読むのは軽く、<br>書くのは深く。</h2>
+        </header>
+
+        <p class="lead" data-reveal style="--d:60ms">
+          聞くときは速く、答えるときは深く。会話の当然を、そのままアーキテクチャにしました。
+          入力は 8B のエンコーダで受け、出力は 16B のデコーダが書く。全体を 552B の MoE が支えます。
+        </p>
+
+        <figure class="lens" data-lens data-reveal style="--d:100ms">
+          <div class="lens__head">
+            <span class="mono">入力 · <b>8B</b> active</span>
+            <span class="mono lens__head-mid">Encoder</span>
+            <span class="mono lens__head-dec">Decoder · <b>16B</b> active</span>
+          </div>
+
+          <div class="lens__stage">
+            <canvas data-lens-canvas aria-hidden="true"></canvas>
+            <div class="lens__readout">
+              <span class="mono">Context</span>
+              <b class="mono" data-out="tokens">128,000</b>
+              <span class="mono lens__unit">tokens</span>
+            </div>
+          </div>
+
+          <div class="lens__foot">
+            <label class="mono lens__label" for="ctx">文脈長</label>
+            <input id="ctx" type="range" min="0" max="100" value="62" step="1"
+                   aria-label="文脈長を 8,000 から 1,024,000 トークンの間で変化させる" data-ctx>
+            <span class="mono lens__hint">入力の太さは、8B のまま。</span>
+          </div>
+          <figcaption class="mono lens__cap">
+            模式図。数値は V4.1-Flash の公表仕様にもとづく。
+          </figcaption>
+        </figure>
+
+        <ol class="tri" data-reveal style="--d:140ms">
+          <li><span class="mono">01</span><p>入力は、8B。文脈が伸びても、入力側の太さは変わらない。</p></li>
+          <li><span class="mono">02</span><p>エンコーダは、どれだけ長い入力も同じ幅の潜在に畳む。</p></li>
+          <li><span class="mono">03</span><p>計算は、出力に寄せる。書くときにだけ、深さを使う。</p></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 ─────────────────────────────────────────── MEMORY -->
+  <section class="sec" id="memory">
+    <div class="wrap g">
+      <div class="rail" data-reveal><span class="mono">03</span></div>
+      <div class="col">
+        <header class="shead" data-reveal>
+          <p class="kicker">Economics</p>
+          <h2>長い会話が、<br>高くつかない理由。</h2>
+        </header>
+
+        <div class="split split--wide" data-reveal style="--d:60ms">
+          <div class="prose">
+            <p>
+              エージェントの費用は、たいていキャッシュに眠っています。同じ文脈を何度も
+              読み直すたび、HBM と SSD が静かに削られていく。V4.1-Flash は KV キャッシュを、
+              前世代の <em>1/4</em>（HBM）と <em>1/8</em>（SSD）にしました。
+            </p>
+            <p>
+              キャッシュヒットは、エージェントの費用の大きな割合を占めます。ここを削ることは、
+              機能を削ることではなく、同じ仕事を軽くすることです。
+            </p>
+          </div>
+
+          <div class="meters" data-meters>
+            <div class="meter">
+              <div class="meter__top">
+                <span class="mono">HBM</span>
+                <span class="mono meter__val">1 / 4</span>
+              </div>
+              <div class="meter__row">
+                <span class="mono meter__k">前世代</span>
+                <div class="meter__track"><i style="--w:100%"></i></div>
+              </div>
+              <div class="meter__row">
+                <span class="mono meter__k meter__k--new">1017</span>
+                <div class="meter__track meter__track--new"><i style="--w:25%"></i></div>
+              </div>
+            </div>
+
+            <div class="meter">
+              <div class="meter__top">
+                <span class="mono">SSD</span>
+                <span class="mono meter__val">1 / 8</span>
+              </div>
+              <div class="meter__row">
+                <span class="mono meter__k">前世代</span>
+                <div class="meter__track"><i style="--w:100%"></i></div>
+              </div>
+              <div class="meter__row">
+                <span class="mono meter__k meter__k--new">1017</span>
+                <div class="meter__track meter__track--new"><i style="--w:12.5%"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="aside mono" data-reveal style="--d:120ms">
+          オフピークの料金は、ピーク時の 50%。柔軟な仕事は、夜に回せます。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERLUDE -->
+  <section class="interlude">
+    <div class="wrap">
+      <p class="interlude__text" data-reveal>
+        速さは、最後に何が残るかで測られる。
+      </p>
+    </div>
+  </section>
+
+  <!-- 04 ─────────────────────────────────────────── BUILD 1017 -->
+  <section class="sec" id="build">
+    <div class="wrap g">
+      <div class="rail" data-reveal><span class="mono">04</span></div>
+      <div class="col">
+        <header class="shead" data-reveal>
+          <p class="kicker">Build 1017</p>
+          <h2>断片ではなく、<br>作品を。</h2>
+        </header>
+
+        <p class="lead" data-reveal style="--d:60ms">
+          1017 の中心には、自己フィードバックによる強化学習があります。関数ひとつではなく、
+          最後まで動くものを。生成の単位が、コード片からプロジェクトへ変わりました。
+        </p>
+
+        <ol class="works" data-reveal style="--d:100ms">
+          <li class="work">
+            <span class="work__i mono">01</span>
+            <div class="work__main">
+              <h3>3D モデリング</h3>
+              <p>紫禁城を、ゼロから。建築の細部まで、ひとつのプロジェクトとして組み上げる。</p>
+            </div>
+            <span class="work__tag mono">Mesh</span>
+          </li>
+          <li class="work">
+            <span class="work__i mono">02</span>
+            <div class="work__main">
+              <h3>ゲーム</h3>
+              <p>ブラウザで走る、レーシングゲーム。物理・描画・操作を、ひとつのプロジェクトとして。</p>
+            </div>
+            <span class="work__tag mono">Web</span>
+          </li>
+          <li class="work">
+            <span class="work__i mono">03</span>
+            <div class="work__main">
+              <h3>エンジン</h3>
+              <p>Godot で、Portal 2 を再現。既存エンジンの作法を読み、その上で書く。</p>
+            </div>
+            <span class="work__tag mono">Game</span>
+          </li>
+          <li class="work">
+            <span class="work__i mono">04</span>
+            <div class="work__main">
+              <h3>世界</h3>
+              <p>先史から現代まで、時代の谷。時間の厚みを、ひとつの 3D シーンに。</p>
+            </div>
+            <span class="work__tag mono">Scene</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 ─────────────────────────────────────────── SPEC -->
+  <section class="sec" id="spec">
+    <div class="wrap g">
+      <div class="rail" data-reveal><span class="mono">05</span></div>
+      <div class="col">
+        <header class="shead" data-reveal>
+          <p class="kicker">Specification</p>
+          <h2>数値で見る。</h2>
+        </header>
+
+        <div class="spec" data-reveal style="--d:60ms">
+          <table>
+            <caption class="sr">DeepSeek-V4.1-Flash-1017 の仕様</caption>
+            <tbody>
+              <tr><th scope="row">モデル ID</th><td><code>deepseek-flash</code></td></tr>
+              <tr><th scope="row">公開日</th><td>2026 年 10 月 17 日</td></tr>
+              <tr><th scope="row">アーキテクチャ</th><td>Causal Encoder–Decoder（非対称 MoE）</td></tr>
+              <tr><th scope="row">総パラメータ</th><td>552B</td></tr>
+              <tr><th scope="row">活性パラメータ</th><td>入力 8B / 出力 16B</td></tr>
+              <tr><th scope="row">KV キャッシュ</th><td>HBM 1/4 · SSD 1/8（前世代比）</td></tr>
+              <tr><th scope="row">入力</th><td>テキスト・画像</td></tr>
+              <tr><th scope="row">料金</th><td>ピーク / オフピーク（50%）</td></tr>
+              <tr><th scope="row">重み</th><td>Hugging Face · ModelScope で公開</td></tr>
+              <tr><th scope="row">検索・取得 API</th><td>$0.75 / 1,000 リクエスト</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="links" data-reveal style="--d:100ms">
+          <a class="link" href="https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017" target="_blank" rel="noopener">
+            <span class="mono">Weights</span>Hugging Face<span class="arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="link" href="https://modelscope.cn/models/deepseek-ai/DeepSeek-V4.1-Flash-1017" target="_blank" rel="noopener">
+            <span class="mono">Mirror</span>ModelScope<span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 ─────────────────────────────────────────── API -->
+  <section class="sec" id="api">
+    <div class="wrap g">
+      <div class="rail" data-reveal><span class="mono">06</span></div>
+      <div class="col">
+        <header class="shead" data-reveal>
+          <p class="kicker">Integration</p>
+          <h2>はじまりは、<br>三行。</h2>
+        </header>
+
+        <div class="split split--code" data-reveal style="--d:60ms">
+          <div class="code">
+            <div class="code__bar">
+              <div class="tabs" role="tablist" aria-label="言語">
+                <button role="tab" aria-selected="true" aria-controls="p-c" id="t-c" type="button" data-tab="c">cURL</button>
+                <button role="tab" aria-selected="false" aria-controls="p-py" id="t-py" type="button" data-tab="py" tabindex="-1">Python</button>
+                <button role="tab" aria-selected="false" aria-controls="p-js" id="t-js" type="button" data-tab="js" tabindex="-1">JavaScript</button>
+              </div>
+              <button class="copy mono" type="button" data-copy>Copy</button>
+            </div>
+
+            <div class="code__body">
+<pre id="p-c" role="tabpanel" aria-labelledby="t-c" tabindex="0"><code><span class="c"># 最初の一文字まで、待たない</span>
+curl https://api.deepseek.com/chat/completions \
+  -H <span class="s">"Authorization: Bearer $DEEPSEEK_API_KEY"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{
+    "model": "deepseek-flash",
+    "messages": [
+      { "role": "user", "content": "光は、ためらわない。" }
+    ],
+    "stream": true
+  }'</span></code></pre>
+
+<pre id="p-py" role="tabpanel" aria-labelledby="t-py" tabindex="0" hidden><code><span class="c"># pip install openai</span>
+<span class="k">import</span> os
+<span class="k">from</span> openai <span class="k">import</span> OpenAI
+
+client = OpenAI(
+    api_key=os.environ[<span class="s">"DEEPSEEK_API_KEY"</span>],
+    base_url=<span class="s">"https://api.deepseek.com"</span>,
+)
+
+stream = client.chat.completions.create(
+    model=<span class="s">"deepseek-flash"</span>,
+    messages=[{<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"光は、ためらわない。"</span>}],
+    stream=<span class="k">True</span>,
+)
+
+<span class="k">for</span> chunk <span class="k">in</span> stream:
+    text = chunk.choices[<span class="n">0</span>].delta.content <span class="k">or</span> <span class="s">""</span>
+    <span class="f">print</span>(text, end=<span class="s">""</span>, flush=<span class="k">True</span>)</code></pre>
+
+<pre id="p-js" role="tabpanel" aria-labelledby="t-js" tabindex="0" hidden><code><span class="c">// ストリームで受け取る</span>
+<span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">"https://api.deepseek.com/chat/completions"</span>, {
+  method: <span class="s">"POST"</span>,
+  headers: {
+    <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span>,
+    Authorization: <span class="s">`Bearer ${process.env.DEEPSEEK_API_KEY}`</span>,
+  },
+  body: <span class="f">JSON.stringify</span>({
+    model: <span class="s">"deepseek-flash"</span>,
+    messages: [{ role: <span class="s">"user"</span>, content: <span class="s">"光は、ためらわない。"</span> }],
+    stream: <span class="k">true</span>,
+  }),
+});
+
+<span class="k">const</span> reader = res.body.<span class="f">getReader</span>();
+<span class="k">const</span> dec = <span class="k">new</span> <span class="f">TextDecoder</span>();
+<span class="k">for</span> (;;) {
+  <span class="k">const</span> { done, value } = <span class="k">await</span> reader.<span class="f">read</span>();
+  <span class="k">if</span> (done) <span class="k">break</span>;
+  process.stdout.<span class="f">write</span>(dec.<span class="f">decode</span>(value));
+}</code></pre>
+            </div>
+          </div>
+
+          <ol class="steps">
+            <li><span class="mono">01</span><p>API キーを発行する。</p></li>
+            <li><span class="mono">02</span><p>モデル ID に <code>deepseek-flash</code> を指定する。</p></li>
+            <li><span class="mono">03</span><p><code>stream</code> を有効にして、最初の一文字を待たない。</p></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIN ─────────────────────────────────────────── CLOSING -->
+  <section class="fin" id="fin">
+    <div class="wrap">
+      <p class="kicker kicker--c" data-reveal>Fin</p>
+      <h2 class="fin__h" data-reveal style="--d:60ms">待たないことは、<br>考える余地を残す。</h2>
+      <p class="fin__p" data-reveal style="--d:100ms">
+        DeepSeek-V4.1-Flash-1017。オープンウェイトで、今日から。
+      </p>
+      <div class="fin__cta" data-reveal style="--d:140ms">
+        <a class="btn" href="https://platform.deepseek.com/" target="_blank" rel="noopener">API キーを発行する</a>
+        <a class="btn btn--text" href="https://api-docs.deepseek.com/" target="_blank" rel="noopener">ドキュメント<span class="arrow" aria-hidden="true">↗</span></a>
+      </div>
+
+      <div class="fin__num" aria-hidden="true" data-fin>
+        <span class="fin__num-outline">1017</span>
+        <span class="fin__num-fill">1017</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__top">
+      <div class="foot__brand">
+        <p class="brand__name brand__name--lg">DeepSeek</p>
+        <p class="foot__tag">光は、ためらわない。</p>
+      </div>
+      <nav class="foot__cols" aria-label="フッター">
+        <div>
+          <p class="foot__h mono">Product</p>
+          <a href="#design">設計</a>
+          <a href="#spec">仕様</a>
+          <a href="#api">API</a>
+        </div>
+        <div>
+          <p class="foot__h mono">Resources</p>
+          <a href="https://api-docs.deepseek.com/" target="_blank" rel="noopener">ドキュメント</a>
+          <a href="https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017" target="_blank" rel="noopener">Hugging Face</a>
+          <a href="https://api-docs.deepseek.com/news/news261017/" target="_blank" rel="noopener">リリースノート</a>
+        </div>
+        <div>
+          <p class="foot__h mono">Community</p>
+          <a href="https://github.com/deepseek-ai" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://discord.gg/Tc7c45Zzu5" target="_blank" rel="noopener">Discord</a>
+          <a href="https://twitter.com/deepseek_ai" target="_blank" rel="noopener">X</a>
+        </div>
+      </nav>
+    </div>
+
+    <div class="foot__bot">
+      <p class="mono">© 2026 DeepSeek</p>
+      <p class="mono">Build 1017 · 2026.10.17</p>
+      <p class="mono foot__note">本ページは V4.1-Flash-1017 を紹介する非公式のファンページです。</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/main.js" defer></script>
+</body>
+</html>
