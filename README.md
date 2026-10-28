@@ -5,7 +5,7 @@ AIで生成したwebサイトを公開するためのリポジトリ。
 
 コードについて著作権を主張するつもりはありませんが、利用においていかなる損害が発生しても私は責任を負いません。 
 
-URL: https://daizu-007.github.io/PublicSiteForAI
+URL: [https://daizu-007.github.io/PublicSiteForAI](https://daizu-007.github.io/PublicSiteForAI)
 
 ## モデル自己紹介
 - [GLM-5.2](https://daizu-007.github.io/PublicSiteForAI/glm52-site)
