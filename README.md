@@ -18,7 +18,13 @@ AIで生成したwebサイトを公開するためのリポジトリ。
 - [Grok 4.7](https://daizu-007.github.io/PublicSiteForAI/grok47)
 
 ## 流れ星屋
-- [GPT-6 Astra](https://daizu-007.github.io/PublicSiteForAI/Astra-Shooting-Star-Novel)
+- [Kimi K3](https://daizu-007.github.io/PublicSiteForAI/star-shop/kimik3)
+- [Claude Opus 5](https://daizu-007.github.io/PublicSiteForAI/star-shop/claudeopus5)
+- [Claude Fable 5.1](https://daizu-007.github.io/PublicSiteForAI/star-shop/claudefable51)
+- [GPT-6 Astra](https://daizu-007.github.io/PublicSiteForAI/star-shop/gpt6astra)
+- [Claude Sonnet 5.5](https://daizu-007.github.io/PublicSiteForAI/star-shop/claudesonnet55)
+- [Gemini 4 Argon](https://daizu-007.github.io/PublicSiteForAI/star-shop/gemini4argon)
+- [Muse Wonder](https://daizu-007.github.io/PublicSiteForAI/star-shop/musewonder)
 
 ## アプリ
 - [英語文法トレーナー](https://daizu-007.github.io/PublicSiteForAI/english-sentence-trainer)
